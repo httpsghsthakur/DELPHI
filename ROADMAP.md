@@ -26,9 +26,9 @@ Built:
 - encode/decode, serialization, and deterministic tests
 - PyTorch dataset/collator interfaces
 
-## Layer 3 — EventEmbed
-Build and train: Custom Word2Vec + Character CNN.
-Input: news corpus
+## Layer 3 — EventEmbed (Completed)
+Built and trained: Custom Word2Vec + Character CNN.
+Input: token IDs & character IDs
 Output: 256-dimensional representation.
 
 ## Layer 4 — EventNet

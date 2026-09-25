@@ -36,8 +36,9 @@ Built and trained: BiLSTM + Self-Attention context encoder.
 Input: EventEmbed vectors `[B,T,256]`
 Outputs: Token-level BIO extraction, Sequence-level Event Type classification.
 
-## Layer 5 — Historical Intelligence
-Build: EventEmbed -> FAISS -> Historical Event Matcher.
+## Layer 5 — Historical Intelligence (Completed)
+Built: EventEmbed -> FAISS -> Historical Event Matcher.
+Includes: Temporal filtration, Deterministic metadata reranking, L2 Normalization.
 Evaluate: Recall@K, Precision@K, similarity quality, temporal consistency
 
 ## Layer 6 — CredNet

@@ -18,10 +18,13 @@ Built:
 - temporal splitting and leakage guard
 - text normalization and deduplication
 
-## Layer 2 — Custom Tokenizer
-Build:
-- vocabulary, token IDs, special tokens
-- encode/decode, serialization, tests
+## Layer 2 — Custom Tokenizer (Completed)
+Built:
+- vocabulary generation and token IDs
+- deterministic normalization and pre-tokenization
+- special tokens (events, entities, padding, etc)
+- encode/decode, serialization, and deterministic tests
+- PyTorch dataset/collator interfaces
 
 ## Layer 3 — EventEmbed
 Build and train: Custom Word2Vec + Character CNN.

@@ -14,7 +14,7 @@ It is not:
 - an oracle that knows the future
 
 ## Current status
-Layer 1 (Data Foundation) is completed.
-Data pipelines, canonical schemas, validation, deduplication, and leakage protection are implemented.
+Layer 1 (Data Foundation) and Layer 2 (Custom Tokenizer) are completed.
+Data pipelines, canonical schemas, validation, deduplication, and leakage protection are implemented. The deterministic Custom Tokenizer is built from scratch for future models.
 AI models not yet implemented
 Datasets not yet ingested

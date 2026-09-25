@@ -5,13 +5,14 @@ Every experiment in DELPHI must adhere to strict reproducibility standards.
 ## Requirements
 
 1. **Seed**: A deterministic seed must be used and logged. Do not scatter random seeds across source files; use the common seed utility.
-2. **Dataset Version**: The exact version and checksum of the dataset must be logged.
+2. **Dataset Version**: The exact version and checksum of the dataset must be logged. Dataset manifests (generated via `delphi.datasets.manifest`) must be included in the experiment tracking.
 3. **Code Commit**: The git commit hash must be logged.
 4. **Configuration Version**: The config file (or dict) used must be saved.
 5. **Model Version**: Model architectures must be versioned.
 6. **Hyperparameters**: All hyperparameters must be stored in the experiment metadata.
 7. **Metrics**: Training and evaluation metrics must be logged via MLflow or similar tool.
 8. **Checkpoints**: Model checkpoints must include metadata tracking back to the exact experiment run.
+9. **Leakage Protection**: All pipelines must employ `TemporalLeakageGuard` to strictly assert that `training_information_time <= prediction_time`.
 
 ## Workflow
 

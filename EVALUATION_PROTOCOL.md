@@ -2,6 +2,7 @@
 
 ## 1. Zero Leakage Rule
 Strict temporal evaluation framework must be used for forecasting models. For any target event at time T0, models must only receive inputs derived from information available strictly before or at T0.
+The DELPHI `TemporalLeakageGuard` and `TemporalSplitter` ensure that dataset generation respects these strict chronological limits.
 
 ## 2. Evaluation Metrics by Component
 - **EventNet**: Precision, Recall, F1, Span F1.

@@ -14,6 +14,7 @@ It is not:
 - an oracle that knows the future
 
 ## Current status
-Architecture phase
+Layer 1 (Data Foundation) is completed.
+Data pipelines, canonical schemas, validation, deduplication, and leakage protection are implemented.
 AI models not yet implemented
 Datasets not yet ingested

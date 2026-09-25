@@ -10,12 +10,13 @@ Deliver:
 - testing structure
 - environment setup
 
-## Layer 1 — Data Foundation
-Build later:
-- data ingestion, cleaning, deduplication, normalization
-- Parquet storage
-- dataset versioning
-- train/validation/test splitting, temporal splitting
+## Layer 1 — Data Foundation (Completed)
+Built:
+- data ingestion adapters
+- canonical schemas (News, Events, Trade, etc)
+- dataset versioning and manifest generation
+- temporal splitting and leakage guard
+- text normalization and deduplication
 
 ## Layer 2 — Custom Tokenizer
 Build:

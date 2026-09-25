@@ -64,8 +64,16 @@ Every training dataset follows this schema:
       "target": "string",
       "relation": "string",
       "weight": 0.0,
-      "evidence_ids": []
-    }
   ]
 }
 ```
+
+## Layer 1 Canonical Schemas
+- **NewsArticle**: Canonical model for news containing `article_id`, `content_hash`, `publication_datetime`, etc.
+- **EventRecord**: Core extracted event containing `event_id`, `actor`, `action`, `target`, `event_date`.
+- **EventRelation**: Directed edge between events (`source_event_id` to `target_event_id`) with a `relation_type`.
+- **SourceRecord**: Information on data publishers, their domains, and visibility windows.
+- **CredibilityFeatures**: 12-dimensional feature vector representations of source credibility.
+- **EconomicObservation**: Normalized format for IMF/World Bank economic indicators.
+- **TradeObservation**: UN Comtrade normalized import/export flow data.
+- **EventSequence**: Ground truth sequences for `CausalSeq` dataset construction.

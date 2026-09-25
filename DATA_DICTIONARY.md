@@ -77,3 +77,9 @@ Every training dataset follows this schema:
 - **EconomicObservation**: Normalized format for IMF/World Bank economic indicators.
 - **TradeObservation**: UN Comtrade normalized import/export flow data.
 - **EventSequence**: Ground truth sequences for `CausalSeq` dataset construction.
+
+## Layer 5 Retrieval Schemas
+- **HistoricalEventDocument**: Extends EventRecord for retrieval. Contains `event_embedding`, `eventnet_version`, `prediction_information_cutoff`.
+- **HistoricalAnalogue**: Output of retrieval. Contains `semantic_similarity`, `final_rank_score`, `similarities`, `differences`, `outcome_timeline`.
+- **HistoricalOutcome**: Observed future event following a historical event, with strict temporal tracking (`days_after_event`).
+- **OutcomeTimeline**: Collection of `HistoricalOutcome` instances at distinct time horizons (e.g. 7 days, 30 days).

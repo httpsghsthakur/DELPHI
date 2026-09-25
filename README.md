@@ -14,7 +14,7 @@ It is not:
 - an oracle that knows the future
 
 ## Current status
-Layer 1 (Data Foundation) and Layer 2 (Custom Tokenizer) are completed.
-Data pipelines, canonical schemas, validation, deduplication, and leakage protection are implemented. The deterministic Custom Tokenizer is built from scratch for future models.
-AI models not yet implemented
-Datasets not yet ingested
+Layer 1 (Data Foundation), Layer 2 (Custom Tokenizer), Layer 3 (EventEmbed), Layer 4 (EventNet), and Layer 5 (Historical Intelligence) are completed.
+Data pipelines, custom embeddings, context-encoders, and FAISS-based evidence retrieval are implemented.
+Next Layer: Layer 6 (CredNet)
+Datasets not yet fully ingested (Real benchmark pending data preparation)

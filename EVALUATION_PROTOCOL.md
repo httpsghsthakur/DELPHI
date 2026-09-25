@@ -8,7 +8,10 @@ The DELPHI `TemporalLeakageGuard` and `TemporalSplitter` ensure that dataset gen
 - **EventNet**: Precision, Recall, F1, Span F1.
 - **EventEmbed**: Similarity scores, intrinsic evaluation metrics.
 - **CredNet**: Macro F1, ROC-AUC, Calibration, Brier score.
-- **Historical Intelligence**: Recall@K, Precision@K, Temporal consistency.
+- **Historical Intelligence**: 
+  - Metrics: Recall@1, Recall@5, Recall@10, Recall@20, MRR.
+  - Evaluation infrastructure is implemented. Real benchmarks are pending real dataset preparation.
+  - Absolute constraint: No future information leakage. All candidates must evaluate strictly against `prediction_time`.
 
 ## 3. Backtesting
 Backtesting will be the core evaluation mechanism.

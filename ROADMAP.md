@@ -31,10 +31,10 @@ Built and trained: Custom Word2Vec + Character CNN.
 Input: token IDs & character IDs
 Output: 256-dimensional representation.
 
-## Layer 4 — EventNet
-Build: Embedding -> BiLSTM -> Self-Attention -> Token Classification.
-Train using MAVEN, MAVEN-ARG, DELPHI annotations.
-Evaluate: precision, recall, F1, span F1
+## Layer 4 — EventNet (Completed)
+Built and trained: BiLSTM + Self-Attention context encoder.
+Input: EventEmbed vectors `[B,T,256]`
+Outputs: Token-level BIO extraction, Sequence-level Event Type classification.
 
 ## Layer 5 — Historical Intelligence
 Build: EventEmbed -> FAISS -> Historical Event Matcher.

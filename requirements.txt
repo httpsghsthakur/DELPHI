@@ -1,0 +1,12 @@
+torch
+fastapi
+uvicorn
+pydantic
+numpy
+polars
+duckdb
+pyarrow
+faiss-cpu
+networkx
+mlflow
+pyyaml

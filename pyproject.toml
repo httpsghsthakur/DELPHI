@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "delphi"
+version = "0.1.0"
+description = "DELPHI - Predictive Intelligence Engine"
+authors = [
+    { name = "DELPHI Team" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "torch",
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "numpy",
+    "polars",
+    "duckdb",
+    "pyarrow",
+    "faiss-cpu",
+    "networkx",
+    "mlflow",
+    "pyyaml"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "flake8",
+    "mypy"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

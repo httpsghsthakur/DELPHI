@@ -1,0 +1,16 @@
+models:
+  eventembed:
+    embedding_dim: 256
+
+  eventnet:
+    hidden_size: 128
+    num_layers: 2
+
+  causalseq:
+    hidden_size: 256
+    num_layers: 2
+
+  crednet:
+    hidden_layers:
+      - 32
+      - 16

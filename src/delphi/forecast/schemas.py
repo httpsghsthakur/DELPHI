@@ -25,6 +25,7 @@ class ForecastRequest(BaseModel):
     prediction_information_cutoff: str
     domain: str
     requested_forecast_horizon: str
+    live_research: bool = False
     config_version: str = "v1"
 
 class EvidenceItem(BaseModel):
@@ -94,6 +95,7 @@ class ForecastReport(BaseModel):
     indicators_to_watch: List[Indicator]
     supporting_evidence: List[EvidenceItem]
     contradictory_evidence: List[EvidenceItem]
+    live_research_report: Optional[Dict[str, Any]] = None
     confidence_metadata: ConfidenceAssessment
     provenance: Provenance
     temporal_safety_status: str

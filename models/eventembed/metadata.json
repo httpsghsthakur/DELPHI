@@ -1,0 +1,15 @@
+{
+  "model_version": "v2.0",
+  "architecture": "Word2Vec+CharCNN",
+  "embedding_dim": 256,
+  "vocab_size": 1386,
+  "training_epochs": 15,
+  "final_loss": 1.7809691757423718,
+  "training_information_end_time": "20230104",
+  "dataset_version": "v2.0",
+  "parameter_count": {
+    "total": 355232,
+    "trainable": 355232
+  },
+  "checkpoint": "C:\\Users\\gt643\\Downloads\\DELPHI\\models\\eventembed\\model.pt"
+}

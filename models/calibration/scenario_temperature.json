@@ -1,0 +1,8 @@
+{
+  "state": "UNCALIBRATED",
+  "temperature": 1.0,
+  "method": "temperature_scaling",
+  "fitted": false,
+  "reason": "Insufficient independent validation data for calibration fitting",
+  "dataset_version": "v2.0"
+}

@@ -7,6 +7,7 @@ import { IndicatorsPanel } from '../components/indicators/IndicatorsPanel';
 import { EvidencePanel } from '../components/evidence/EvidencePanel';
 import { ProvenancePanel } from '../components/provenance/ProvenancePanel';
 import { HistoricalAnalogueView } from '../components/historical/HistoricalAnalogueView';
+import { ResearchPanel } from '../components/research/ResearchPanel';
 
 export function Dashboard() {
   const { report, loading, error } = useAnalysisStore();
@@ -60,6 +61,12 @@ export function Dashboard() {
 
         {report && (
           <div className="space-y-6">
+            
+            {/* Live Research */}
+            {report.live_research_report && (
+              <ResearchPanel />
+            )}
+
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {/* Scenarios Visualization */}
               <div className="bg-delphi-card border border-delphi-border rounded-lg p-5">

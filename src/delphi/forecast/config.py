@@ -6,6 +6,9 @@ class ForecastConfig(BaseModel):
     probability_tolerance: float = 1e-4
     strict_temporal_mode: bool = True
     provenance_required: bool = True
+    execution_mode: str = "SYNTHETIC"
+    models_dir: str = "models"
+    indexes_dir: str = "indexes"
     
     # Weights for Scenario Scoring
     weight_sequence_score: float = 1.0

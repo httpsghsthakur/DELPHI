@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     
     # Temporal mode
     strict_temporal_mode: bool = True
+    execution_mode: str = os.getenv("DELPHI_EXECUTION_MODE", "SYNTHETIC")
+    models_dir: str = os.getenv("DELPHI_MODELS_DIR", "models")
+    indexes_dir: str = os.getenv("DELPHI_INDEXES_DIR", "indexes")
     
     # CORS
     cors_origins: str = os.getenv("DELPHI_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")

@@ -27,6 +27,7 @@ export interface AnalysisRequest {
   prediction_information_cutoff?: string;
   domain?: string;
   forecast_horizon?: number;
+  live_research?: boolean;
 }
 
 export interface CurrentEventInfo {
@@ -118,6 +119,7 @@ export interface ForecastReport {
   provenance: ProvenanceInfo;
   supporting_evidence: EvidenceData[];
   contradictory_evidence: EvidenceData[];
+  live_research_report?: any;
 }
 
 export interface APIError {

@@ -16,6 +16,8 @@ from .adapters import (
     MockActualEventNet, MockActualCredNet, 
     MockActualHistoricalMatcher, MockActualCausalSeq
 )
+from .real_adapters import load_real_models
+from ..research.engine import LiveResearchEngine
 
 class ForecastOrchestrator:
     def __init__(self, config: ForecastConfig):
@@ -26,16 +28,26 @@ class ForecastOrchestrator:
         self.indicator_detector = IndicatorDetector(config)
         self.confidence_evaluator = ConfidenceEvaluator(config)
         
-        # Instantiate actual model integrations
-        self.event_net_model = MockActualEventNet()
-        self.cred_net_model = MockActualCredNet()
-        self.hist_matcher_model = MockActualHistoricalMatcher()
-        self.causal_seq_model = MockActualCausalSeq()
+        
+        if config.execution_mode == "REAL":
+            # Load real models
+            real_models = load_real_models(config.models_dir, config.indexes_dir)
+            self.event_net_model = real_models["eventnet"]
+            self.cred_net_model = real_models["crednet"]
+            self.hist_matcher_model = real_models["historical_matcher"]
+            self.causal_seq_model = real_models["causalseq"]
+        else:
+            # Instantiate mock/synthetic model integrations
+            self.event_net_model = MockActualEventNet()
+            self.cred_net_model = MockActualCredNet()
+            self.hist_matcher_model = MockActualHistoricalMatcher()
+            self.causal_seq_model = MockActualCausalSeq()
         
         self.event_extractor = EventExtractionAdapter(self.event_net_model)
         self.credibility_assessor = CredibilityAdapter(self.cred_net_model)
         self.historical_retriever = HistoricalRetrievalAdapter(self.hist_matcher_model)
         self.causal_forecaster = CausalForecastAdapter(self.causal_seq_model)
+        self.research_engine = LiveResearchEngine(self.cred_net_model)
         
     def generate_forecast(self, request: ForecastRequest) -> ForecastReport:
         # 1. Evidence Registry
@@ -46,6 +58,16 @@ class ForecastOrchestrator:
         
         # 3. CredNet via Real Adapter
         credibility = self.credibility_assessor.assess(current_event)
+        
+        # 3.5 Live Research (if enabled)
+        research_report_dict = None
+        if getattr(request, 'live_research', False):
+            res_report = self.research_engine.run_research(current_event, request.prediction_information_cutoff)
+            research_report_dict = res_report.model_dump()
+            for ev in res_report.supporting_evidence:
+                evidence_registry.add_evidence(ev)
+            for ev in res_report.conflicting_evidence:
+                evidence_registry.add_evidence(ev)
         
         # 4. Historical Intelligence via Real Adapter
         historical_analogues = self.historical_retriever.retrieve(
@@ -97,6 +119,7 @@ class ForecastOrchestrator:
             indicators_to_watch=indicators,
             supporting_evidence=evidence_registry.get_supporting(),
             contradictory_evidence=evidence_registry.get_contradictory(),
+            live_research_report=research_report_dict,
             confidence_metadata=confidence,
             provenance=prov,
             temporal_safety_status="VALID" if evidence_registry.validate_cutoff(request.prediction_information_cutoff) else "INVALID",

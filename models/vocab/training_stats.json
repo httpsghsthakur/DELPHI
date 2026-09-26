@@ -1,0 +1,8 @@
+{
+  "vocabulary_size": 1386,
+  "total_tokens": 73119,
+  "unique_tokens_in_corpus": 1621,
+  "unknown_token_rate": "0.0037",
+  "special_token_count": 32,
+  "average_sequence_length": "5.0"
+}

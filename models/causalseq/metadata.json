@@ -1,0 +1,12 @@
+{
+  "model_version": "v2.0",
+  "architecture": "EncoderDecoder-LSTM-BahdanauAttention",
+  "training_epochs": 10,
+  "final_loss": 6.953079026842874,
+  "training_information_end_time": "20230104",
+  "dataset_version": "v2.0",
+  "metrics": {
+    "event_recall_at_1": 0.28,
+    "final_loss": 6.953079026842874
+  }
+}

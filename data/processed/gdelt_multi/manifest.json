@@ -1,0 +1,260 @@
+{
+  "dataset_id": "GDELT_MULTI_20230101_20230107",
+  "dataset_name": "GDELT V2 Multi-Day Corpus (Jan 1-7 2023)",
+  "dataset_version": "v2.0",
+  "source": "http://data.gdeltproject.org/gdeltv2/",
+  "download_timestamps": [
+    "20230101000000",
+    "20230101060000",
+    "20230101120000",
+    "20230101180000",
+    "20230102000000",
+    "20230102060000",
+    "20230102120000",
+    "20230102180000",
+    "20230103000000",
+    "20230103060000",
+    "20230103120000",
+    "20230103180000",
+    "20230104000000",
+    "20230104060000",
+    "20230104120000",
+    "20230104180000",
+    "20230105000000",
+    "20230105060000",
+    "20230105120000",
+    "20230105180000",
+    "20230106000000",
+    "20230106060000",
+    "20230106120000",
+    "20230106180000",
+    "20230107000000",
+    "20230107060000",
+    "20230107120000",
+    "20230107180000"
+  ],
+  "creation_date": "2026-09-26T11:55:25.590616Z",
+  "time_range_start": "20130103",
+  "time_range_end": "20230107",
+  "gdelt_window_start": "20230101",
+  "gdelt_window_end": "20230107",
+  "record_count": 27938,
+  "unique_sources": 0,
+  "unique_domains": 0,
+  "unique_actors": 856,
+  "unique_targets": 773,
+  "unique_event_types": 181,
+  "sha256": "48f8b6bde30fed5aecbb7436d7d950fd688dd8039831fba0db7b85a8466f4d0a",
+  "schema_version": "v2",
+  "preprocessing_version": "v2",
+  "split_version": "v2",
+  "download_log": [
+    {
+      "timestamp": "20230101000000",
+      "status": "cached",
+      "records": 1039
+    },
+    {
+      "timestamp": "20230101060000",
+      "status": "downloaded",
+      "size": 162945,
+      "records": 406
+    },
+    {
+      "timestamp": "20230101120000",
+      "status": "downloaded",
+      "size": 133961,
+      "records": 343
+    },
+    {
+      "timestamp": "20230101180000",
+      "status": "downloaded",
+      "size": 267779,
+      "records": 650
+    },
+    {
+      "timestamp": "20230102000000",
+      "status": "downloaded",
+      "size": 394071,
+      "records": 951
+    },
+    {
+      "timestamp": "20230102060000",
+      "status": "downloaded",
+      "size": 203164,
+      "records": 497
+    },
+    {
+      "timestamp": "20230102120000",
+      "status": "downloaded",
+      "size": 249247,
+      "records": 615
+    },
+    {
+      "timestamp": "20230102180000",
+      "status": "downloaded",
+      "size": 322028,
+      "records": 759
+    },
+    {
+      "timestamp": "20230103000000",
+      "status": "downloaded",
+      "size": 487521,
+      "records": 1218
+    },
+    {
+      "timestamp": "20230103060000",
+      "status": "downloaded",
+      "size": 351168,
+      "records": 881
+    },
+    {
+      "timestamp": "20230103120000",
+      "status": "downloaded",
+      "size": 273044,
+      "records": 682
+    },
+    {
+      "timestamp": "20230103180000",
+      "status": "downloaded",
+      "size": 459756,
+      "records": 1116
+    },
+    {
+      "timestamp": "20230104000000",
+      "status": "downloaded",
+      "size": 873434,
+      "records": 2130
+    },
+    {
+      "timestamp": "20230104060000",
+      "status": "downloaded",
+      "size": 315135,
+      "records": 770
+    },
+    {
+      "timestamp": "20230104120000",
+      "status": "downloaded",
+      "size": 432780,
+      "records": 1063
+    },
+    {
+      "timestamp": "20230104180000",
+      "status": "downloaded",
+      "size": 449104,
+      "records": 1087
+    },
+    {
+      "timestamp": "20230105000000",
+      "status": "downloaded",
+      "size": 806520,
+      "records": 2009
+    },
+    {
+      "timestamp": "20230105060000",
+      "status": "downloaded",
+      "size": 269851,
+      "records": 655
+    },
+    {
+      "timestamp": "20230105120000",
+      "status": "downloaded",
+      "size": 381723,
+      "records": 951
+    },
+    {
+      "timestamp": "20230105180000",
+      "status": "downloaded",
+      "size": 473936,
+      "records": 1151
+    },
+    {
+      "timestamp": "20230106000000",
+      "status": "downloaded",
+      "size": 990329,
+      "records": 2415
+    },
+    {
+      "timestamp": "20230106060000",
+      "status": "downloaded",
+      "size": 268920,
+      "records": 660
+    },
+    {
+      "timestamp": "20230106120000",
+      "status": "downloaded",
+      "size": 417284,
+      "records": 1041
+    },
+    {
+      "timestamp": "20230106180000",
+      "status": "downloaded",
+      "size": 451789,
+      "records": 1101
+    },
+    {
+      "timestamp": "20230107000000",
+      "status": "downloaded",
+      "size": 884271,
+      "records": 2141
+    },
+    {
+      "timestamp": "20230107060000",
+      "status": "downloaded",
+      "size": 222919,
+      "records": 548
+    },
+    {
+      "timestamp": "20230107120000",
+      "status": "downloaded",
+      "size": 213472,
+      "records": 520
+    },
+    {
+      "timestamp": "20230107180000",
+      "status": "downloaded",
+      "size": 219611,
+      "records": 539
+    }
+  ],
+  "statistics": {
+    "total_records": 27938,
+    "unique_sources": 0,
+    "unique_domains": 0,
+    "unique_actors": 856,
+    "unique_targets": 773,
+    "unique_event_types": 181,
+    "unique_event_root_codes": 20,
+    "date_range": [
+      "20130103",
+      "...",
+      "20230107"
+    ],
+    "date_count": 31,
+    "duplicate_rate": "0.0%",
+    "missing_timestamp_rate": "0.0%",
+    "missing_source_rate": "100.0%",
+    "event_root_distribution": {
+      "04": 6672,
+      "01": 4170,
+      "05": 2182,
+      "19": 2166,
+      "02": 2083,
+      "11": 1784,
+      "03": 1778,
+      "17": 1478,
+      "08": 1164,
+      "07": 963,
+      "12": 728,
+      "06": 551,
+      "09": 541,
+      "18": 451,
+      "13": 445,
+      "10": 305,
+      "16": 198,
+      "14": 177,
+      "15": 98,
+      "20": 4
+    }
+  }
+}

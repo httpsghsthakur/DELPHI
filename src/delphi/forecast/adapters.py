@@ -45,6 +45,7 @@ class EventExtractionAdapter:
             "actors": [result.get("actor")],
             "targets": [result.get("target")],
             "domain": result.get("domain"),
+            "embedding": result.get("embedding"),
             "model_version": self.model.version
         }
 

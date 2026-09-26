@@ -9,6 +9,7 @@ class AnalysisRequest(BaseModel):
     prediction_information_cutoff: str = Field(..., description="ISO 8601 timestamp for temporal cutoff.")
     domain: str = Field(..., description="The domain of the event (e.g., geopolitics).")
     forecast_horizon: int = Field(30, description="Forecast horizon in days.")
+    live_research: bool = Field(False, description="Enable live web research for this analysis.")
 
 class HistoricalSearchRequest(BaseModel):
     text: str = Field(..., description="The event text to find analogues for.")

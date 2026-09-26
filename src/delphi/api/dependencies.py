@@ -16,6 +16,11 @@ def get_registry() -> ModelRegistry:
 def get_orchestrator() -> ForecastOrchestrator:
     global _orchestrator
     if _orchestrator is None:
-        cfg = ForecastConfig(strict_temporal_mode=settings.strict_temporal_mode)
+        cfg = ForecastConfig(
+            strict_temporal_mode=settings.strict_temporal_mode,
+            execution_mode=settings.execution_mode,
+            models_dir=settings.models_dir,
+            indexes_dir=settings.indexes_dir
+        )
         _orchestrator = ForecastOrchestrator(cfg)
     return _orchestrator

@@ -64,6 +64,32 @@ class BacktestRun(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime, nullable=True)
 
+class ResearchRunRecord(Base):
+    __tablename__ = "research_runs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    run_id = Column(String, unique=True, index=True)
+    analysis_id = Column(String, index=True, nullable=True)
+    started_at = Column(String)
+    completed_at = Column(String)
+    cutoff = Column(String)
+    status = Column(String)
+    provider_metadata = Column(JSON)
+
+class ResearchDocumentRecord(Base):
+    __tablename__ = "research_documents"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(String, unique=True, index=True)
+    research_run_id = Column(String, index=True)
+    url = Column(String)
+    source = Column(String)
+    published_at = Column(String)
+    retrieved_at = Column(String)
+    checksum = Column(String)
+    metadata_payload = Column(JSON) # To avoid storing raw text if not needed
+
+
 # Engine and Session configuration
 _engine = None
 _SessionLocal = None

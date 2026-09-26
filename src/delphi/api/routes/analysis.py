@@ -46,7 +46,8 @@ def analyze(
             publication_timestamp=request.publication_timestamp,
             prediction_information_cutoff=request.prediction_information_cutoff,
             domain=request.domain,
-            requested_forecast_horizon=f"{request.forecast_horizon} days"
+            requested_forecast_horizon=f"{request.forecast_horizon} days",
+            live_research=request.live_research
         )
         
         report = orchestrator.generate_forecast(forecast_req)
@@ -83,6 +84,7 @@ def analyze(
             scenarios=scenarios,
             indicators=[i.indicator_id for i in report.indicators_to_watch],
             evidence=[e if isinstance(e, dict) else e.model_dump() for e in report.supporting_evidence + report.contradictory_evidence],
+            live_research_report=report.live_research_report,
             calibration_status=report.confidence_metadata.calibration_status,
             provenance=prov,
             limitations=report.limitations

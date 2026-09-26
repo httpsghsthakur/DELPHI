@@ -10,6 +10,7 @@ export function InputPanel() {
   const [pubDate, setPubDate] = useState(new Date().toISOString().slice(0, 16));
   const [cutoffDate, setCutoffDate] = useState(new Date().toISOString().slice(0, 16));
   const [domain, setDomain] = useState('geopolitics');
+  const [liveResearch, setLiveResearch] = useState(false);
   
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -39,7 +40,8 @@ export function InputPanel() {
         text,
         publication_timestamp: pubUtc,
         prediction_information_cutoff: cutoffUtc,
-        domain
+        domain,
+        live_research: liveResearch
       });
       
       setReport(response);
@@ -107,6 +109,20 @@ export function InputPanel() {
             <option value="economics">Economics</option>
             <option value="security">Security</option>
           </select>
+        </div>
+        
+        <div className="flex items-center mt-2 mb-4">
+          <input
+            type="checkbox"
+            id="liveResearch"
+            checked={liveResearch}
+            onChange={(e) => setLiveResearch(e.target.checked)}
+            disabled={loading}
+            className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-delphi-accent focus:ring-delphi-accent focus:ring-offset-slate-900"
+          />
+          <label htmlFor="liveResearch" className="ml-2 block text-sm text-slate-300">
+            Enable Live Web Research
+          </label>
         </div>
         
         <button 

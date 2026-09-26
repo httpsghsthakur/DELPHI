@@ -41,7 +41,7 @@ Built: EventEmbed -> FAISS -> Historical Event Matcher.
 Includes: Temporal filtration, Deterministic metadata reranking, L2 Normalization.
 Evaluate: Recall@K, Precision@K, similarity quality, temporal consistency
 
-## Layer 6 — CredNet
+## Layer 6 — CredNet (Completed)
 Build: 12 features -> 32 -> 16 -> 1.
 Use source-level credibility data.
 Evaluate: macro F1, ROC-AUC, calibration, Brier score

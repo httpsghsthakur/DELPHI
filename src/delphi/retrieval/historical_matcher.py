@@ -61,4 +61,9 @@ class HistoricalMatcher:
         # Stage 3: Reranking
         analogues = self.reranker.rerank(query_event, valid_candidates)
         
+        # Stage 4: Attach Outcomes
+        # If we had a database of historical events, we would pass it to HistoricalOutcomeBuilder
+        # Since we don't hold the full DB in memory by default, we'll leave it to the consumer
+        # or a dedicated retrieval endpoint that orchestrates Matcher + OutcomeBuilder.
+        
         return analogues[:top_k]

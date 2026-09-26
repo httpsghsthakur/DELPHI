@@ -5,6 +5,7 @@ from .historical_matcher import HistoricalMatcher
 from .similarity import normalize_embeddings
 from .filters import TemporalHistoricalFilter, MetadataFilter
 from .reranker import DeterministicReranker
+from .outcome_timeline import HistoricalOutcomeBuilder
 
 __all__ = [
     "HistoricalEventDocument",
@@ -17,5 +18,6 @@ __all__ = [
     "normalize_embeddings",
     "TemporalHistoricalFilter",
     "MetadataFilter",
-    "DeterministicReranker"
+    "DeterministicReranker",
+    "HistoricalOutcomeBuilder"
 ]

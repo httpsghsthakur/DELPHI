@@ -45,7 +45,7 @@ class CredNetInference:
                 feat.primary_source_presence,
                 feat.attribution_completeness,
                 feat.author_history_availability,
-                feat.domain_reputation
+                feat.source_longevity_normalized
             ]
             vectors.append(v)
             

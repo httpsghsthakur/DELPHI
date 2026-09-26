@@ -32,7 +32,7 @@ class CredNetDataset(Dataset):
             feat.primary_source_presence,
             feat.attribution_completeness,
             feat.author_history_availability,
-            feat.domain_reputation
+            feat.source_longevity_normalized
         ], dtype=torch.float32)
         
         label = torch.tensor([self.labels[idx]], dtype=torch.float32)
@@ -78,3 +78,38 @@ def create_source_disjoint_split(
             val_labels.append(labels[i])
             
     return CredNetDataset(train_feats, train_labels), CredNetDataset(val_feats, val_labels)
+
+def create_temporal_split(
+    features: List[CredibilityFeatures], 
+    labels: List[float], 
+    val_ratio: float = 0.1,
+    test_ratio: float = 0.1
+):
+    """
+    Splits the dataset sequentially strictly by timestamp.
+    Guarantees train_time < validation_time < test_time.
+    """
+    assert len(features) == len(labels), "Length mismatch"
+    
+    # Sort strictly by timestamp
+    paired = sorted(zip(features, labels), key=lambda x: x[0].timestamp)
+    
+    total = len(paired)
+    train_end = int(total * (1.0 - val_ratio - test_ratio))
+    val_end = int(total * (1.0 - test_ratio))
+    
+    train_data = paired[:train_end]
+    val_data = paired[train_end:val_end]
+    test_data = paired[val_end:]
+    
+    # Verify temporal non-overlap via strict assertions
+    if train_data and val_data:
+        assert train_data[-1][0].timestamp <= val_data[0][0].timestamp, "Temporal leak between Train and Val"
+    if val_data and test_data:
+        assert val_data[-1][0].timestamp <= test_data[0][0].timestamp, "Temporal leak between Val and Test"
+        
+    return (
+        CredNetDataset([f for f, l in train_data], [l for f, l in train_data]),
+        CredNetDataset([f for f, l in val_data], [l for f, l in val_data]),
+        CredNetDataset([f for f, l in test_data], [l for f, l in test_data])
+    )

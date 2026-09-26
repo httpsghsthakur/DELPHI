@@ -22,11 +22,13 @@ def test_feature_extraction():
     )
     
     historical = {
+        "calculation_timestamp": "2020-12-30T12:00:00Z",
         "historical_reliability": 0.8,
         "corroboration_count": 5,
         "correction_rate": 0.1,
         "publication_variance": 0.2,
-        "author_known_historically": True
+        "author_known_historically": True,
+        "first_seen_date": "2015-12-31T00:00:00Z"
     }
     
     feats = extractor.extract(article, "2020-12-31T23:59:59Z", historical)
@@ -35,7 +37,7 @@ def test_feature_extraction():
     assert feats.historical_source_reliability == 0.8
     assert feats.correction_history_signal == 0.9 # 1 - 0.1
     assert feats.author_history_availability == 1.0
-    assert feats.domain_reputation == 1.0 # .edu
+    assert feats.source_longevity_normalized > 0.0 # 5 years
     assert feats.primary_source_presence == 1.0
     
     # Sensationalism: caps and exclamation marks

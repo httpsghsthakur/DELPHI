@@ -74,7 +74,7 @@ class CredibilityFeatures(BaseModel):
     primary_source_presence: float = 0.0
     attribution_completeness: float = 0.5
     author_history_availability: float = 0.0
-    domain_reputation: float = 0.5
+    source_longevity_normalized: float = 0.0
     
     dataset_version: str
 

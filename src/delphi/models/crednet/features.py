@@ -25,6 +25,13 @@ class CredibilityFeatureExtractor:
             
         historical_source_data = historical_source_data or {}
         
+        # Strict temporal guard for the historical data itself
+        hist_time = historical_source_data.get("calculation_timestamp")
+        if hist_time:
+            hist_date = datetime.strptime(hist_time[:10], "%Y-%m-%d").date()
+            if hist_date > cutoff_date:
+                raise ValueError(f"Temporal Leakage! Historical data computed at {hist_date} is after prediction cutoff {cutoff_date}")
+        
         # 1. author_identifiable
         author_identifiable = 1.0 if (article.author and article.author.strip() and article.author.lower() != "unknown") else 0.0
         
@@ -71,14 +78,15 @@ class CredibilityFeatureExtractor:
         # 11. author_history_availability
         auth_hist = 1.0 if historical_source_data.get("author_known_historically", False) else 0.0
         
-        # 12. domain_reputation
-        domain = article.url.split("/")[2] if "//" in article.url else article.url
-        if domain.endswith(".edu") or domain.endswith(".gov"):
-            domain_rep = 1.0
-        elif domain.endswith(".com") or domain.endswith(".org"):
-            domain_rep = 0.5
+        # 12. source_longevity_normalized
+        # Replace heuristic domain rep with measurable longevity: days since source first appeared
+        first_seen = historical_source_data.get("first_seen_date")
+        if first_seen:
+            first_seen_date = datetime.strptime(first_seen[:10], "%Y-%m-%d").date()
+            days_active = max((cutoff_date - first_seen_date).days, 0)
+            source_longevity = min(float(days_active) / 3650.0, 1.0) # max out at 10 years
         else:
-            domain_rep = 0.3
+            source_longevity = 0.0
             
         return CredibilityFeatures(
             source_id=article.source_id,
@@ -95,6 +103,6 @@ class CredibilityFeatureExtractor:
             primary_source_presence=primary,
             attribution_completeness=attribution_completeness,
             author_history_availability=auth_hist,
-            domain_reputation=domain_rep,
+            source_longevity_normalized=source_longevity,
             dataset_version="v1.0"
         )

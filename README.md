@@ -14,7 +14,7 @@ It is not:
 - an oracle that knows the future
 
 ## Current status
-Layer 1 (Data Foundation), Layer 2 (Custom Tokenizer), Layer 3 (EventEmbed), Layer 4 (EventNet), and Layer 5 (Historical Intelligence) are completed.
-Data pipelines, custom embeddings, context-encoders, and FAISS-based evidence retrieval are implemented.
-Next Layer: Layer 6 (CredNet)
+Layer 1 (Data Foundation), Layer 2 (Custom Tokenizer), Layer 3 (EventEmbed), Layer 4 (EventNet), Layer 5 (Historical Intelligence), and Layer 6 (CredNet) are completed.
+Data pipelines, custom embeddings, FAISS retrieval, and the calibrated CredNet MLP (12 features) are implemented.
+Next Layer: Layer 7 (Event Relationships)
 Datasets not yet fully ingested (Real benchmark pending data preparation)

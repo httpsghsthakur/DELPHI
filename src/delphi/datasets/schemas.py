@@ -60,18 +60,22 @@ class SourceRecord(BaseModel):
 
 class CredibilityFeatures(BaseModel):
     source_id: str
-    feature_01: Optional[float] = None
-    feature_02: Optional[float] = None
-    feature_03: Optional[float] = None
-    feature_04: Optional[float] = None
-    feature_05: Optional[float] = None
-    feature_06: Optional[float] = None
-    feature_07: Optional[float] = None
-    feature_08: Optional[float] = None
-    feature_09: Optional[float] = None
-    feature_10: Optional[float] = None
-    feature_11: Optional[float] = None
-    feature_12: Optional[float] = None
+    article_id: str = ""
+    timestamp: str = ""
+    
+    author_identifiable: float = 0.0
+    article_length_normalized: float = 0.0
+    citation_density: float = 0.0
+    title_sensationalism: float = 0.5
+    historical_source_reliability: float = 0.5
+    corroboration_count_normalized: float = 0.0
+    correction_history_signal: float = 0.5
+    publication_consistency: float = 0.5
+    primary_source_presence: float = 0.0
+    attribution_completeness: float = 0.5
+    author_history_availability: float = 0.0
+    domain_reputation: float = 0.5
+    
     dataset_version: str
 
 class EconomicObservation(BaseModel):

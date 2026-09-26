@@ -52,7 +52,7 @@ Train on structured event trajectories.
 
 ## Layer 8 — Forecast Orchestration & Scenario Intelligence (Completed)
 Combine: EventNet + EventEmbed + Historical Matcher + CredNet + CausalSeq.
-Output: deterministic scenarios, calibrated probabilities, evidence aggregation, indicators.
+Output: deterministic scenarios, scenario weights (uncalibrated unless explicitly fitted), evidence aggregation, indicators.
 
 ## Layer 9 — Final Backtesting & Calibration
 Build a strict temporal evaluation framework (no future leakage).

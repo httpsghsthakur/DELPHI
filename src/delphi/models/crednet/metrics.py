@@ -6,7 +6,7 @@ def compute_metrics(labels: List[float], probs: List[float], threshold: float = 
     """
     Computes rigorous credibility metrics.
     labels: true labels (0.0 or 1.0)
-    probs: calibrated probabilities (or sigmoid of logits)
+    probs: predicted probabilities (sigmoid of logits; may be uncalibrated)
     """
     y_true = np.array(labels)
     y_prob = np.array(probs)

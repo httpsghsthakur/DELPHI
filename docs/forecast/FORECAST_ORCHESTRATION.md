@@ -1,7 +1,7 @@
 # DELPHI Forecast Orchestration (Layer 8)
 
 ## Architecture Overview
-The Forecast Orchestration layer is the deterministically constructed pipeline that connects DELPHI's neural layers into a unified intelligence engine. It extracts current events, gathers historical analogies, predicts future trajectories, and synthesizes them into actionable, calibrated forecast reports.
+The Forecast Orchestration layer is the deterministically constructed pipeline that connects DELPHI's neural layers into a unified intelligence engine. It extracts current events, gathers historical analogies, predicts future trajectories, and synthesizes them into structured, scenario-weighted forecast reports.
 
 ### Pipeline Stages
 1. **Forecast Request Formulation**: Accepts structured metadata and text, strictly enforcing the `prediction_information_cutoff`.
@@ -11,7 +11,7 @@ The Forecast Orchestration layer is the deterministically constructed pipeline t
 5. **CausalSeq Generation (Layer 7)**: Generates structured candidate future event trajectories autoregressively.
 6. **Scenario Construction & Deduplication**: Condenses multiple trajectories into a manageable set (default max 3) of unique structural pathways.
 7. **Scenario Scoring**: Evaluates scenarios using a configurable weighting of `sequence_score`, `historical_support_score`, `evidence_score` and `model_support_score`.
-8. **Probability Calibration**: Converts raw scores into calibrated probabilities summing to 1. Tracks whether the model is in `UNCALIBRATED / RESEARCH MODE` or fully calibrated.
+8. **Probability Calibration**: Converts raw scores into normalized weights summing to 1. In `UNCALIBRATED / RESEARCH MODE` these are softmax-normalized scores, not calibrated probabilities. Becomes calibrated only when a temperature-scaling model has been fitted and independently validated.
 9. **Indicator Detection**: Extracts measurable downstream real-world conditions to monitor for each scenario.
 10. **Evidence Aggregation**: Formalizes supporting and contradictory evidence.
 11. **Confidence Assessment**: Derives a confidence category based on calibration, historical agreement, and evidence spread.

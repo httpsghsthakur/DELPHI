@@ -1,27 +1,63 @@
 version: '3.8'
 
 services:
-  api:
-    build: .
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-delphi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-delphi_secure_pass_123}
+      POSTGRES_DB: ${POSTGRES_DB:-delphidb}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-delphi} -d ${POSTGRES_DB:-delphidb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-delphi}:${POSTGRES_PASSWORD:-delphi_secure_pass_123}@db:5432/${POSTGRES_DB:-delphidb}
+      - MODEL_REGISTRY_PATH=/app/models/registry.json
+      - STRICT_TEMPORAL_MODE=${STRICT_TEMPORAL_MODE:-true}
+      - DELPHI_EXECUTION_MODE=${DELPHI_EXECUTION_MODE:-synthetic}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:8080,http://localhost}
+      - MAX_PAYLOAD_LENGTH=${MAX_PAYLOAD_LENGTH:-100000}
+    volumes:
+      - ./data:/app/data:ro
+      - ./models:/app/models:ro
+      - ./indexes:/app/indexes:ro
+      - ./logs:/app/logs
     ports:
       - "8000:8000"
-    environment:
-      - DELPHI_ENV=development
-    volumes:
-      - ./src:/app/src
-      - ./data:/app/data
-      - ./config:/app/config
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
 
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: delphi
-      POSTGRES_PASSWORD: delphi_password
-      POSTGRES_DB: delphi
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+      args:
+        - VITE_API_URL=/api
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
+  pgdata:

@@ -14,7 +14,8 @@ It is not:
 - an oracle that knows the future
 
 ## Current status
-Layer 1 (Data Foundation), Layer 2 (Custom Tokenizer), Layer 3 (EventEmbed), Layer 4 (EventNet), Layer 5 (Historical Intelligence), and Layer 6 (CredNet) are completed.
-Data pipelines, custom embeddings, FAISS retrieval, and the calibrated CredNet MLP (12 features) are implemented.
-Next Layer: Layer 7 (Event Relationships)
-Datasets not yet fully ingested (Real benchmark pending data preparation)
+Layers 1-12 are complete. The application is now fully integrated with a React frontend, FastAPI backend, PostgreSQL database, and Docker containerization.
+
+## Deployment
+See [DOCKER.md](docs/deployment/DOCKER.md) for production deployment instructions via Docker Compose.
+See [LOCAL_SETUP.md](docs/deployment/LOCAL_SETUP.md) for local development setup without Docker.

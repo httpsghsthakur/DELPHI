@@ -10,3 +10,6 @@ faiss-cpu
 networkx
 mlflow
 pyyaml
+sqlalchemy
+alembic
+psycopg2-binary

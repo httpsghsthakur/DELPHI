@@ -1,7 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
+from delphi.api.routes.analysis import analyze
 
-router = APIRouter()
+forecasts_router = APIRouter()
 
-@router.get("/forecasts/{forecast_id}")
-def get_forecast(forecast_id: str):
-    raise HTTPException(status_code=501, detail="NOT IMPLEMENTED")
+from delphi.api.schemas.responses import APIForecastReport
+
+# Alias to the analysis endpoint
+@forecasts_router.post("", response_model=APIForecastReport)
+def create_forecast(*args, **kwargs):
+    return analyze(*args, **kwargs)

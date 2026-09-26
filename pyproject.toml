@@ -22,7 +22,10 @@ dependencies = [
     "faiss-cpu",
     "networkx",
     "mlflow",
-    "pyyaml"
+    "pyyaml",
+    "sqlalchemy",
+    "alembic",
+    "psycopg2-binary"
 ]
 
 [project.optional-dependencies]

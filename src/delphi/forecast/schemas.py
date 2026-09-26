@@ -28,6 +28,8 @@ class ForecastRequest(BaseModel):
     config_version: str = "v1"
 
 class EvidenceItem(BaseModel):
+    model_config = {"protected_namespaces": ()}
+    
     source_id: str
     timestamp: str
     role: str # "historical_analogue", "crednet_signal", "causalseq_trajectory", "eventnet_extraction"
@@ -36,6 +38,8 @@ class EvidenceItem(BaseModel):
     content: Dict[str, Any]
 
 class ScenarioCandidate(BaseModel):
+    model_config = {"protected_namespaces": ()}
+    
     scenario_id: str
     title: str
     trajectory: List[Dict[str, Any]]
@@ -70,6 +74,8 @@ class Indicator(BaseModel):
     importance: str
 
 class ConfidenceAssessment(BaseModel):
+    model_config = {"protected_namespaces": ()}
+    
     confidence_status: str # e.g. "insufficient_evidence", "calibrated", "uncalibrated"
     calibration_status: str
     historical_evaluation_quality: float = 0.0

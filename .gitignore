@@ -21,3 +21,9 @@ indexes/historical_events/*
 node_modules/
 dist/
 build/
+*.db
+mlruns/
+logs/
+.DS_Store
+alembic.ini
+!alembic.ini

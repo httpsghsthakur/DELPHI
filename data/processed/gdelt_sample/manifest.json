@@ -1,0 +1,13 @@
+{
+  "dataset_id": "GDELT_SAMPLE_20230101",
+  "dataset_name": "GDELT V2 15-Minute Sample",
+  "source": "http://data.gdeltproject.org/gdeltv2/20230101000000.export.CSV.zip",
+  "version": "v1.0",
+  "download_date": "2026-09-26T09:27:29.576818Z",
+  "sha256": "fef9830b9208d3779445003becff788af93f8a13ce509a15c2ac5da334f9dfb2",
+  "time_range": "20230101000000",
+  "record_count": 1001,
+  "schema_version": "v1",
+  "preprocessing_version": "v1",
+  "split_version": "v1"
+}

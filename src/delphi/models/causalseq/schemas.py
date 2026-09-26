@@ -11,6 +11,8 @@ class FutureEventPrediction(BaseModel):
     step_index: int
 
 class FutureEventSequence(BaseModel):
+    model_config = {"protected_namespaces": ()}
+    
     sequence_id: str
     originating_event_id: str
     prediction_cutoff: str
@@ -19,6 +21,8 @@ class FutureEventSequence(BaseModel):
     dataset_version: str
 
 class ScenarioCandidate(BaseModel):
+    model_config = {"protected_namespaces": ()}
+    
     candidate_id: str
     originating_event_id: str
     events: List[FutureEventPrediction]

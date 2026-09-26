@@ -1,10 +1,30 @@
-import React from 'react';
 import { 
   Globe, Activity, Search, Clock, BarChart3, Database, 
-  Settings, CheckCircle2, Check, Bell
+  Settings, CheckCircle2, Check, Bell, XCircle, AlertTriangle
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { apiClient } from '../../api/client';
+import { HealthResponse } from '../../api/types';
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+
+  useEffect(() => {
+    apiClient.getHealth().then(setHealth).catch(console.error);
+  }, []);
+
+  const getStatusIcon = (status?: string) => {
+    if (status === 'ok') return <div className="w-3.5 h-3.5 bg-delphi-green/20 rounded-sm flex items-center justify-center"><Check className="w-2.5 h-2.5 text-delphi-green" /></div>;
+    if (status === 'missing') return <div className="w-3.5 h-3.5 bg-red-900/40 rounded-sm flex items-center justify-center"><XCircle className="w-2.5 h-2.5 text-red-500" /></div>;
+    return <div className="w-3.5 h-3.5 bg-yellow-900/40 rounded-sm flex items-center justify-center"><AlertTriangle className="w-2.5 h-2.5 text-yellow-500" /></div>;
+  };
+  
+  const getDot = (status?: string) => {
+    if (status === 'ok') return <div className="w-2 h-2 rounded-full bg-delphi-green" />;
+    if (status === 'missing') return <div className="w-2 h-2 rounded-full bg-red-500" />;
+    return <div className="w-2 h-2 rounded-full bg-yellow-500" />;
+  };
+
   return (
     <div className="flex h-screen w-full bg-delphi-bg overflow-hidden text-slate-300 font-sans">
       
@@ -60,38 +80,48 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="p-5 border-t border-delphi-border">
           <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">System Status</h3>
           <div className="space-y-1.5 mb-6">
-            {['Tokenizer', 'EventEmbed', 'EventNet', 'CredNet', 'CausalSeq', 'Historical Index', 'Database', 'Research Engine'].map(sys => (
-              <div key={sys} className="flex justify-between items-center text-[11px] text-slate-300">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-delphi-green" />
-                  {sys}
+            {[
+              { label: 'Tokenizer', key: 'tokenizer' },
+              { label: 'EventEmbed', key: 'eventembed' },
+              { label: 'EventNet', key: 'eventnet' },
+              { label: 'CredNet', key: 'crednet' },
+              { label: 'CausalSeq', key: 'causalseq' },
+              { label: 'Historical Index', key: 'retrieval_index' },
+              { label: 'Calibration', key: 'calibration' }
+            ].map(sys => {
+              const statusVal = health?.dependencies?.[sys.key] || 'missing';
+              return (
+                <div key={sys.label} className="flex justify-between items-center text-[11px] text-slate-300">
+                  <div className="flex items-center gap-2">
+                    {getDot(statusVal)}
+                    {sys.label}
+                    {statusVal === 'missing' && <span className="text-[8px] text-red-500">NOT READY</span>}
+                  </div>
+                  {getStatusIcon(statusVal)}
                 </div>
-                <div className="w-3.5 h-3.5 bg-delphi-green/20 rounded-sm flex items-center justify-center">
-                  <Check className="w-2.5 h-2.5 text-delphi-green" />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           
           <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Execution Mode</h3>
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 rounded-full bg-delphi-green" />
+            <div className={`w-2 h-2 rounded-full ${health?.execution_mode === 'REAL' ? 'bg-delphi-green' : 'bg-delphi-orange'}`} />
             <div>
-              <div className="text-sm font-medium text-white">REAL</div>
-              <div className="text-[10px] text-slate-400">(using trained models)</div>
+              <div className="text-sm font-medium text-white">{health?.execution_mode || 'UNKNOWN'}</div>
+              <div className="text-[10px] text-slate-400">{health?.execution_mode === 'REAL' ? '(using trained models)' : '(synthetic mode)'}</div>
             </div>
           </div>
           
           <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Calibration</h3>
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 rounded-full bg-delphi-orange" />
+            <div className={`w-2 h-2 rounded-full ${health?.dependencies?.calibration === 'ok' ? 'bg-delphi-green' : 'bg-red-500'}`} />
             <div>
-              <div className="text-sm font-medium text-white">UNCALIBRATED</div>
-              <div className="text-[10px] text-slate-400">(research mode)</div>
+              <div className="text-sm font-medium text-white">{health?.dependencies?.calibration === 'ok' ? 'CALIBRATED' : 'UNCALIBRATED'}</div>
+              <div className="text-[10px] text-slate-400">{health?.dependencies?.calibration === 'ok' ? '(ready for production)' : '(research mode)'}</div>
             </div>
           </div>
           
-          <div className="text-[10px] text-slate-500 mt-2">DELPHI v0.1.0</div>
+          <div className="text-[10px] text-slate-500 mt-2">DELPHI {health?.api_version || 'v0.1.0'}</div>
         </div>
       </div>
       

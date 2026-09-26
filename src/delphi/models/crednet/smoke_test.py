@@ -48,6 +48,7 @@ def run_smoke_test():
         res = inf.predict([features[0]])
         print(f"Inference test: Raw Logit = {res[0].raw_logit}, Calibrated Score = {res[0].calibrated_score}")
         
+    print("NELA-GT ADAPTER READY — REAL DATA PROCESSING PENDING")
     print("CredNet Smoke Test: ARCHITECTURE VALIDATED — REAL TRAINING PENDING")
 
 if __name__ == "__main__":

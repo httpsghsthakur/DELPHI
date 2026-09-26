@@ -7,11 +7,11 @@ from delphi.datasets.schemas import CredibilityFeatures
 from .model import CredNet
 
 class CredibilityResult:
-    def __init__(self, source_id: str, article_id: str, raw_logit: float, credibility_score: float, calibrated_score: float, explanation: dict):
+    def __init__(self, source_id: str, article_id: str, raw_logit: float, uncalibrated_score: float, calibrated_score: float, explanation: dict):
         self.source_id = source_id
         self.article_id = article_id
         self.raw_logit = raw_logit
-        self.credibility_score = credibility_score # Sigmoid
+        self.uncalibrated_score = uncalibrated_score # Sigmoid
         self.calibrated_score = calibrated_score
         self.explanation = explanation
 
@@ -69,7 +69,7 @@ class CredNetInference:
                 source_id=feat.source_id,
                 article_id=feat.article_id,
                 raw_logit=logits[i],
-                credibility_score=raw_prob,
+                uncalibrated_score=raw_prob,
                 calibrated_score=calibrated_probs[i],
                 explanation=explanation
             )

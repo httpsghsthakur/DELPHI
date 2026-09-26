@@ -77,7 +77,16 @@ def create_source_disjoint_split(
             val_feats.append(f)
             val_labels.append(labels[i])
             
-    return CredNetDataset(train_feats, train_labels), CredNetDataset(val_feats, val_labels)
+    train_ds = CredNetDataset(train_feats, train_labels)
+    val_ds = CredNetDataset(val_feats, val_labels)
+    
+    # Assert disjointness explicitly
+    train_source_set = set(train_sources)
+    val_source_set = set(val_ds.features[i].source_id for i in range(len(val_ds.features)))
+    intersection = train_source_set.intersection(val_source_set)
+    assert len(intersection) == 0, f"Source disjoint split failed! Overlap: {intersection}"
+    
+    return train_ds, val_ds
 
 def create_temporal_split(
     features: List[CredibilityFeatures], 
@@ -108,8 +117,8 @@ def create_temporal_split(
     if val_data and test_data:
         assert val_data[-1][0].timestamp <= test_data[0][0].timestamp, "Temporal leak between Val and Test"
         
-    return (
-        CredNetDataset([f for f, l in train_data], [l for f, l in train_data]),
-        CredNetDataset([f for f, l in val_data], [l for f, l in val_data]),
-        CredNetDataset([f for f, l in test_data], [l for f, l in test_data])
-    )
+    train_ds = CredNetDataset([f for f, l in train_data], [l for f, l in train_data])
+    val_ds = CredNetDataset([f for f, l in val_data], [l for f, l in val_data])
+    test_ds = CredNetDataset([f for f, l in test_data], [l for f, l in test_data])
+    
+    return train_ds, val_ds, test_ds

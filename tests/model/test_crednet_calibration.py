@@ -17,6 +17,26 @@ def test_platt_scaler():
     assert all(0.0 <= p <= 1.0 for p in probs)
     assert probs[0] < probs[-1]
 
+def test_calibration_isolation():
+    scaler = PlattScaler()
+    
+    val_logits = [-2.0, 0.0, 2.0]
+    val_labels = [0.0, 0.0, 1.0]
+    
+    test_logits = [-5.0, 5.0]
+    test_labels = [1.0, 0.0] # completely adversarial/flipped test set
+    
+    # Train only on val
+    scaler.fit(val_logits, val_labels)
+    
+    # Predict on test
+    probs = scaler.calibrate(test_logits)
+    
+    # The scaler should map -5.0 to a low prob and 5.0 to a high prob, 
+    # totally ignoring the fact that test_labels says otherwise.
+    assert probs[0] < 0.5  # -5.0 should be low prob
+    assert probs[1] > 0.5  # 5.0 should be high prob
+
 def test_metrics():
     labels = [1.0, 0.0, 1.0, 0.0]
     probs = [0.9, 0.1, 0.8, 0.2]

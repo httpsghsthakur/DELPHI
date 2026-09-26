@@ -24,7 +24,7 @@ def main():
     args = parser.parse_args()
     
     if args.command == "train":
-        print("REAL DATA TRAINING PENDING. Pipeline scaffolded but no NELA-GT loaded.")
+        print("NELA-GT ADAPTER READY — REAL DATA PROCESSING PENDING. Pipeline scaffolded but no NELA-GT loaded.")
     elif args.command == "evaluate":
         print("REAL DATA EVALUATION PENDING.")
     elif args.command == "predict":

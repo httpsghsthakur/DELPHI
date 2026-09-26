@@ -1,10 +1,10 @@
-import { ProvenanceInfo } from '../../api/types';
+import { APIProvenance } from '../../api/types';
 import { formatTimestamp } from '../../utils/formatting';
 import { ShieldCheck, Database, FileCode, CheckCircle2 } from 'lucide-react';
 import { useAnalysisStore } from '../../state/analysisStore';
 
 interface Props {
-  provenance: ProvenanceInfo;
+  provenance: APIProvenance;
 }
 
 export function ProvenancePanel({ provenance }: Props) {
@@ -62,7 +62,7 @@ export function ProvenancePanel({ provenance }: Props) {
             </div>
             <div className="flex justify-between items-center border-b border-slate-800/50 pb-1">
               <span className="text-slate-500">Retrieval</span>
-              <span className="text-slate-300 flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500" /> {provenance.retrieval_index}</span>
+              <span className="text-slate-300 flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-green-500" /> {provenance.retrieval_index_version}</span>
             </div>
             <div className="flex justify-between items-center border-b border-slate-800/50 pb-1">
               <span className="text-slate-500">CausalSeq</span>

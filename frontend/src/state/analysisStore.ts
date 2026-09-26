@@ -21,7 +21,7 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
   systemStatus: null,
   
   setReport: (report) => set({ report, loading: false, error: null }),
-  setLoading: (loading) => set({ loading, error: loading ? null : undefined }), // clear error on load
+  setLoading: (loading) => set({ loading, error: loading ? null : useAnalysisStore.getState().error }),
   setError: (error) => set({ error, loading: false }),
   setSystemStatus: (status) => set({ systemStatus: status }),
   reset: () => set({ report: null, loading: false, error: null })

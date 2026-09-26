@@ -96,30 +96,42 @@ export interface EvidenceData {
   role: 'SUPPORTING' | 'CONFLICTING' | 'NEUTRAL';
 }
 
-export interface ProvenanceInfo {
+export interface APIProvenance {
+  prediction_cutoff: string;
   tokenizer_version: string;
   eventembed_version: string;
   eventnet_version: string;
   crednet_version: string;
   causalseq_version: string;
-  retrieval_index: string;
+  retrieval_index_version: string;
   calibration_version: string;
   dataset_version: string;
-  prediction_cutoff: string;
+  checkpoint_training_bounds: Record<string, string>;
+  temporal_validation_status: string;
+}
+
+export interface APIScenario {
+  scenario_id: string;
+  title?: string; // added back to UI
+  trajectory: any[];
+  raw_score: number;
+  normalized_weight: number;
+  probability?: number;
 }
 
 export interface ForecastReport {
-  analysis_id: string;
-  timestamp: string;
-  current_event: CurrentEventInfo;
-  credibility: CredibilityInfo;
-  historical_analogues: HistoricalAnalogue[];
-  scenarios: ScenarioCandidate[];
-  indicators: IndicatorData[];
-  provenance: ProvenanceInfo;
-  supporting_evidence: EvidenceData[];
-  contradictory_evidence: EvidenceData[];
+  analysis_id?: string;
+  timestamp?: string;
+  current_event: any;
+  credibility_assessment: any;
+  historical_analogues: any[];
+  scenarios: APIScenario[];
+  indicators: string[];
+  evidence: any[];
   live_research_report?: any;
+  calibration_status: string;
+  provenance: APIProvenance;
+  limitations: string[];
 }
 
 export interface APIError {
@@ -133,5 +145,5 @@ export interface BacktestRunResponse {
   run_id: string;
   status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
   metrics?: Record<string, any>;
-  provenance?: ProvenanceInfo;
+  provenance?: APIProvenance;
 }

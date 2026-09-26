@@ -229,17 +229,17 @@ export function Dashboard() {
                <h3 className="text-sm font-semibold text-white">Credibility Assessment</h3>
             </div>
             
-            {health?.dependencies?.crednet === 'ok' && report.credibility ? (
+            {health?.dependencies?.crednet === 'ok' && report.credibility_assessment ? (
               <>
                 <div className="flex items-center gap-8 mb-6">
                   {/* Circular Progress */}
                   <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" strokeWidth="8" />
-                      <circle cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="8" strokeDasharray="283" strokeDashoffset={283 - (283 * (report.credibility.final_credibility_score || 0))} className="drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" strokeLinecap="round" />
+                      <circle cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="8" strokeDasharray="283" strokeDashoffset={283 - (283 * (report.credibility_assessment.credibility_score || 0))} className="drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" strokeLinecap="round" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="text-3xl font-bold text-white">{(report.credibility.final_credibility_score || 0).toFixed(2)}</div>
+                      <div className="text-3xl font-bold text-white">{(report.credibility_assessment.credibility_score || 0).toFixed(2)}</div>
                       <div className="text-[9px] text-slate-400 text-center uppercase leading-tight">Overall<br/>Credibility</div>
                     </div>
                   </div>
@@ -251,18 +251,18 @@ export function Dashboard() {
                           <span className="text-slate-400">Source Reliability</span>
                           <div className="flex items-center gap-2">
                             <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                              <div className={`h-full bg-blue-500`} style={{width: `${(report.credibility.source_reliability || 0)*100}%`}} />
+                              <div className={`h-full bg-blue-500`} style={{width: `${(report.credibility_assessment.source_reliability || 0)*100}%`}} />
                             </div>
-                            <span className="text-slate-300 w-6 text-right">{(report.credibility.source_reliability || 0).toFixed(2)}</span>
+                            <span className="text-slate-300 w-6 text-right">{(report.credibility_assessment.source_reliability || 0).toFixed(2)}</span>
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-slate-400">Content Credibility</span>
                           <div className="flex items-center gap-2">
                             <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                              <div className={`h-full bg-blue-500`} style={{width: `${(report.credibility.content_credibility || 0)*100}%`}} />
+                              <div className={`h-full bg-blue-500`} style={{width: `${(report.credibility_assessment.content_credibility || 0)*100}%`}} />
                             </div>
-                            <span className="text-slate-300 w-6 text-right">{(report.credibility.content_credibility || 0).toFixed(2)}</span>
+                            <span className="text-slate-300 w-6 text-right">{(report.credibility_assessment.content_credibility || 0).toFixed(2)}</span>
                           </div>
                         </div>
                     </div>
@@ -336,12 +336,12 @@ export function Dashboard() {
                  <div className="p-1.5 bg-delphi-green/20 rounded text-delphi-green">
                    <Database className="w-4 h-4" />
                  </div>
-                 <h3 className="text-sm font-semibold text-white">Supporting Evidence <span className="ml-1 bg-delphi-green/20 text-delphi-green text-[10px] px-1.5 py-0.5 rounded-full">{report.supporting_evidence?.length || 0}</span></h3>
+                 <h3 className="text-sm font-semibold text-white">Supporting Evidence <span className="ml-1 bg-delphi-green/20 text-delphi-green text-[10px] px-1.5 py-0.5 rounded-full">{report.evidence?.filter((e: any) => e.role === 'SUPPORTING').length || 0}</span></h3>
               </div>
             </div>
             
             <div className="space-y-3 overflow-y-auto max-h-[300px] custom-scrollbar pr-2">
-              {report.supporting_evidence?.length ? report.supporting_evidence.map((ev: any, i: number) => (
+              {report.evidence?.filter((e: any) => e.role === 'SUPPORTING').length ? report.evidence.filter((e: any) => e.role === 'SUPPORTING').map((ev: any, i: number) => (
                 <div key={i} className="flex gap-3">
                   <div className="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 mt-0.5">
                     <Database className="w-3 h-3 text-slate-400" />
@@ -364,12 +364,12 @@ export function Dashboard() {
                  <div className="p-1.5 bg-red-500/20 rounded text-red-400">
                    <AlertCircle className="w-4 h-4" />
                  </div>
-                 <h3 className="text-sm font-semibold text-white">Conflicting Evidence <span className="ml-1 bg-red-500/20 text-red-400 text-[10px] px-1.5 py-0.5 rounded-full">{report.contradictory_evidence?.length || 0}</span></h3>
+                 <h3 className="text-sm font-semibold text-white">Conflicting Evidence <span className="ml-1 bg-red-500/20 text-red-400 text-[10px] px-1.5 py-0.5 rounded-full">{report.evidence?.filter((e: any) => e.role === 'CONFLICTING').length || 0}</span></h3>
               </div>
             </div>
             
             <div className="space-y-3 overflow-y-auto max-h-[300px] custom-scrollbar pr-2">
-              {report.contradictory_evidence?.length ? report.contradictory_evidence.map((ev: any, i: number) => (
+              {report.evidence?.filter((e: any) => e.role === 'CONFLICTING').length ? report.evidence.filter((e: any) => e.role === 'CONFLICTING').map((ev: any, i: number) => (
                 <div key={i} className="flex gap-3">
                   <div className="w-6 h-6 rounded bg-red-900/20 border border-red-500/30 flex items-center justify-center shrink-0 mt-0.5">
                     <AlertCircle className="w-3 h-3 text-red-400" />

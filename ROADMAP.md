@@ -46,19 +46,15 @@ Build: 12 features -> 32 -> 16 -> 1.
 Use source-level credibility data.
 Evaluate: macro F1, ROC-AUC, calibration, Brier score
 
-## Layer 7 — Event Relationships
-Build: temporal relationships, causal relationships, event chains, graph construction.
-Use: MAVEN-ERE, GDELT, ICEWS
-
-## Layer 8 — CausalSeq
+## Layer 7 — CausalSeq (Completed)
 Build: Encoder -> Bahdanau Attention -> Decoder.
 Train on structured event trajectories.
 
-## Layer 9 — Forecast Engine
+## Layer 8 — Forecast Orchestration & Scenario Intelligence (Completed)
 Combine: EventNet + EventEmbed + Historical Matcher + CredNet + CausalSeq.
-Output: three probability-weighted scenarios.
+Output: deterministic scenarios, calibrated probabilities, evidence aggregation, indicators.
 
-## Layer 10 — Backtesting
+## Layer 9 — Final Backtesting & Calibration
 Build a strict temporal evaluation framework (no future leakage).
 
 ## Layer 11 — Backend

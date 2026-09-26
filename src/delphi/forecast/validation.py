@@ -20,9 +20,18 @@ class ForecastValidator:
             
         # 4. Strict temporal mode: check checkpoint and evidence
         cutoff = report.provenance.prediction_cutoff
-        prov_time = report.provenance.checkpoint_training_end_time
-        if prov_time and prov_time > cutoff:
-            raise ValueError(f"Temporal Leakage: checkpoint {prov_time} > cutoff {cutoff}")
+        
+        prov_fields = [
+            ("eventembed", report.provenance.eventembed_training_end),
+            ("eventnet", report.provenance.eventnet_training_end),
+            ("crednet", report.provenance.crednet_training_end),
+            ("causalseq", report.provenance.causalseq_training_end),
+            ("calibration", report.provenance.calibration_training_end)
+        ]
+        
+        for name, p_time in prov_fields:
+            if p_time and p_time != "not_used" and p_time > cutoff:
+                raise ValueError(f"Temporal Leakage: {name} checkpoint {p_time} > cutoff {cutoff}")
             
         for ev in report.supporting_evidence + report.contradictory_evidence:
             if ev.timestamp > cutoff:

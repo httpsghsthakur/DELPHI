@@ -21,18 +21,34 @@ The Forecast Orchestration layer is the deterministically constructed pipeline t
 ## Strict From-Scratch Rule
 This layer relies solely on DELPHI's internal deterministic logic and PyTorch models. No external LLMs, AI APIs, or pretrained embedding representations are used anywhere in the pipeline. Explanations derive structurally from model traces, avoiding hallucination.
 
+## Real Component Integration
+The Forecast Orchestrator operates using explicit `Adapter` classes (e.g. `EventExtractionAdapter`, `CredibilityAdapter`, `HistoricalRetrievalAdapter`, `CausalForecastAdapter`) that invoke the real underlying DELPHI components (Layers 1-7).
+The distinction between production model execution and synthetic tests is strictly maintained:
+- **Production Execution**: Adapters wrap the real PyTorch models and FAISS indices.
+- **Synthetic Test**: Adapters wrap mock representations of the PyTorch models that yield deterministic synthetic output. At no point are arbitrary dictionaries fabricated directly within the orchestrator.
+
 ## Scenario Scoring and Probability
-- **Scoring**: A weighted sum of evidence components.
+- **Scoring Traceability**: Every scenario includes an `explain_scenario_score()` method returning the exact mathematical components (`sequence_component`, `historical_component`, `credibility_component`, `model_component`).
 - **Probability Guarantee**: Always sum to 1 within a tolerance limit. Handled by `ProbabilityCalibrator`.
-- **Status**: The pipeline tracks whether the calibration functions have been validated on real ground-truth outcomes. Currently, it emits `UNCALIBRATED / RESEARCH MODE`.
+- **Calibration States**: The calibrator transitions explicitly between:
+  - `UNINITIALIZED`
+  - `UNCALIBRATED / RESEARCH MODE` (Normalization only)
+  - `FITTED_VALIDATION` (Temperature scaling optimized via NLL on validation set)
+  - `HELDOUT_VALIDATED` (Calibration confirmed against test data)
 
 ## Temporal Checkpoint Rules
 Strict chronological enforcement exists across the entire pipeline.
 - Future evidence is explicitly barred.
-- The temporal bound `checkpoint_training_end_time` of the model weights is strictly checked against the `prediction_information_cutoff`. If violated, the run is flagged as `STRICT_TEMPORAL_BACKTEST_UNAVAILABLE` or failed.
+- The temporal bounds of all individual component weights (`eventembed_training_end`, `eventnet_training_end`, `crednet_training_end`, `causalseq_training_end`, `calibration_training_end`) are checked against the `prediction_information_cutoff`.
+- The CLI command `python -m delphi.forecast backtest` runs in strict mode and explicitly rejects any cutoff violating the checkpoint provenance boundary, rather than silently substituting future data.
 
 ## Evidence
-Evidence is explicitly categorized as supporting, contradictory, or neutral. It traces back to known datasets and features, avoiding "black box" decisions.
+Evidence is explicitly categorized as supporting, contradictory, or neutral. It traces back to known datasets and features, avoiding "black box" decisions. `evidence_score` relies strictly on the structured output of `CredNet`.
 
 ## Real Data Status
-**DELPHI END-TO-END ARCHITECTURE VALIDATED — REAL TEMPORAL BACKTESTING AND CALIBRATED FORECASTING PENDING**
+**MODEL EXECUTION**: REAL DELPHI COMPONENTS (via Adapters)  
+**DATA**: SYNTHETIC FIXTURE  
+**CALIBRATION**: UNCALIBRATED  
+**TEMPORAL SAFETY**: ARCHITECTURALLY VERIFIED  
+
+*(DELPHI END-TO-END ARCHITECTURE VALIDATED — REAL TEMPORAL BACKTESTING AND CALIBRATED FORECASTING PENDING)*

@@ -11,7 +11,11 @@ class Provenance(BaseModel):
     calibration_version: str = "v1"
     dataset_manifest_version: str = "v1"
     prediction_cutoff: str
-    checkpoint_training_end_time: str
+    eventembed_training_end: str = "not_used"
+    eventnet_training_end: str = "not_used"
+    crednet_training_end: str = "not_used"
+    causalseq_training_end: str = "not_used"
+    calibration_training_end: str = "not_used"
     
 class ForecastRequest(BaseModel):
     article_text: str
@@ -42,6 +46,16 @@ class ScenarioCandidate(BaseModel):
     historical_support_score: float = 0.0
     model_support_score: float = 0.0
     raw_scenario_score: float = 0.0
+    
+    def explain_scenario_score(self, config_weights: Dict[str, float]) -> Dict[str, float]:
+        """Returns the numerical contribution of each component."""
+        return {
+            "sequence_component": config_weights.get("weight_sequence_score", 0.0) * self.sequence_score,
+            "historical_component": config_weights.get("weight_historical_support", 0.0) * self.historical_support_score,
+            "credibility_component": config_weights.get("weight_credibility", 0.0) * self.evidence_score,
+            "model_component": config_weights.get("weight_model_confidence", 0.0) * self.model_support_score,
+            "total_score": self.raw_scenario_score
+        }
 
 class Indicator(BaseModel):
     indicator_id: str

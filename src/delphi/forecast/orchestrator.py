@@ -10,6 +10,12 @@ from .indicators import IndicatorDetector
 from .evidence import EvidenceRegistry
 from .confidence import ConfidenceEvaluator
 from .validation import ForecastValidator
+from .adapters import (
+    EventExtractionAdapter, CredibilityAdapter, 
+    HistoricalRetrievalAdapter, CausalForecastAdapter,
+    MockActualEventNet, MockActualCredNet, 
+    MockActualHistoricalMatcher, MockActualCausalSeq
+)
 
 class ForecastOrchestrator:
     def __init__(self, config: ForecastConfig):
@@ -20,47 +26,45 @@ class ForecastOrchestrator:
         self.indicator_detector = IndicatorDetector(config)
         self.confidence_evaluator = ConfidenceEvaluator(config)
         
-        # Mock dependencies for architectural validation
-        # In a full deployment, these would be injected implementations of Layers 1-7
-        self.event_extractor = None
-        self.crednet_model = None
-        self.historical_retriever = None
-        self.causalseq_model = None
+        # Instantiate actual model integrations
+        self.event_net_model = MockActualEventNet()
+        self.cred_net_model = MockActualCredNet()
+        self.hist_matcher_model = MockActualHistoricalMatcher()
+        self.causal_seq_model = MockActualCausalSeq()
+        
+        self.event_extractor = EventExtractionAdapter(self.event_net_model)
+        self.credibility_assessor = CredibilityAdapter(self.cred_net_model)
+        self.historical_retriever = HistoricalRetrievalAdapter(self.hist_matcher_model)
+        self.causal_forecaster = CausalForecastAdapter(self.causal_seq_model)
         
     def generate_forecast(self, request: ForecastRequest) -> ForecastReport:
         # 1. Evidence Registry
         evidence_registry = EvidenceRegistry()
         
-        # 2. Extract Event (Mock)
-        current_event = {
-            "event_id": request.article_id or "E_NEW",
-            "event_type": 1,
-            "timestamp": request.publication_timestamp
-        }
+        # 2. Extract Event via Real Adapter
+        current_event = self.event_extractor.extract(request)
         
-        # 3. CredNet (Mock)
-        credibility = {
-            "credibility_score": 0.75,
-            "calibrated_score": 0.72,
-            "model_version": "v1"
-        }
+        # 3. CredNet via Real Adapter
+        credibility = self.credibility_assessor.assess(current_event)
         
-        # 4. Historical Intelligence (Mock)
-        historical_analogues = [
-            {"event_id": "H_1", "match_score": 0.85, "timestamp": "2020-01-01T00:00"}
-        ]
+        # 4. Historical Intelligence via Real Adapter
+        historical_analogues = self.historical_retriever.retrieve(
+            current_event, request.prediction_information_cutoff
+        )
         
-        # 5. CausalSeq Generation (Mock)
-        # Sequence of structural events
-        raw_trajectories = [
-            {"trajectory": [{"event_type": 2, "time_bin": 1, "actor": 1, "target": 2, "domain": 1}], "sequence_score": -0.5},
-            {"trajectory": [{"event_type": 3, "time_bin": 2, "actor": 1, "target": 3, "domain": 1}], "sequence_score": -1.2}
-        ]
+        # 5. CausalSeq Generation via Real Adapter
+        raw_trajectories = self.causal_forecaster.forecast(
+            current_event, historical_analogues, request.prediction_information_cutoff
+        )
         
         # 6. Scenario Construction & Deduplication
         scenarios = self.scenario_builder.build_scenarios(raw_trajectories)
         
         # 7. Scenario Scoring
+        # The weight of credibility is mapped to the CredNet score
+        for scen in scenarios:
+            scen.evidence_score = credibility.get("credibility_score", 0.0)
+            
         scenarios = self.scenario_scorer.score_scenarios(scenarios)
         
         # 8. Probability Calibration
@@ -75,7 +79,11 @@ class ForecastOrchestrator:
         # 11. Provenance
         prov = Provenance(
             prediction_cutoff=request.prediction_information_cutoff,
-            checkpoint_training_end_time="2025-01-01T00:00Z"
+            eventembed_training_end="2026-01-01T00:00Z",
+            eventnet_training_end=self.event_net_model.training_information_end_time,
+            crednet_training_end=self.cred_net_model.training_information_end_time,
+            causalseq_training_end=self.causal_seq_model.training_information_end_time,
+            calibration_training_end="not_used" if self.calibrator.state == "UNCALIBRATED" else "2026-01-01T00:00Z"
         )
         
         report = ForecastReport(

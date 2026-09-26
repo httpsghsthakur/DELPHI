@@ -42,7 +42,28 @@ def main():
         report = orchestrator.generate_forecast(req)
         print(f"Validation successful. {len(report.candidate_scenarios)} scenarios generated.")
         
-    elif args.command in ["backtest", "inspect"]:
+    elif args.command == "backtest":
+        config = ForecastConfig(strict_temporal_mode=True)
+        orchestrator = ForecastOrchestrator(config)
+        
+        req = ForecastRequest(
+            article_text=args.article,
+            publication_timestamp="2026-08-30T00:00Z",
+            prediction_information_cutoff=args.cutoff,
+            domain="geopolitics",
+            requested_forecast_horizon="30 days"
+        )
+        
+        try:
+            report = orchestrator.generate_forecast(req)
+            print(f"Backtest cutoff {args.cutoff} successful.")
+            print(f"Model versions: EventNet {report.provenance.eventnet_version}, CredNet {report.provenance.crednet_version}")
+            print(f"Checkpoint bounds: EventNet {report.provenance.eventnet_training_end}")
+        except Exception as e:
+            print(f"Backtest cutoff {args.cutoff} REJECTED.")
+            print(f"Reason: {str(e)}")
+            
+    elif args.command == "inspect":
         print(f"Command {args.command} is stubbed for end-to-end integration.")
 
 if __name__ == "__main__":

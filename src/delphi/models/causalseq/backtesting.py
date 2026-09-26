@@ -21,6 +21,16 @@ class CausalSeqBacktester:
         results = {}
         
         for cutoff in cutoffs:
+            # 0. Check checkpoint provenance
+            prov = getattr(self.model.config, 'checkpoint_training_end_time', "")
+            if prov and prov > cutoff:
+                results[cutoff] = {
+                    "matched_next_event": False,
+                    "leakage_validation_status": "STRICT_TEMPORAL_BACKTEST_UNVERIFIED",
+                    "error": f"Checkpoint end time {prov} is after cutoff {cutoff}"
+                }
+                continue
+                
             # 1. Construct context strictly <= cutoff
             allowed_events = [e for e in self.raw_events if e["timestamp"] <= cutoff]
             if len(allowed_events) < 2:

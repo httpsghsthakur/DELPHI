@@ -53,4 +53,27 @@ def compute_sequence_metrics(preds: Dict[str, torch.Tensor], targets: Dict[str, 
     else:
         metrics["event_recall_at_3"] = 0.0
 
+    # Probabilistic metrics
+    if len(t_evt) > 0:
+        probs = torch.softmax(preds["event_type"], dim=-1)
+        valid_probs = probs.view(-1, probs.size(-1))[valid]
+        
+        # NLL
+        log_probs = torch.log(valid_probs + 1e-9)
+        # Gather the log prob of the actual target
+        nll = -log_probs.gather(1, t_evt_full[valid].unsqueeze(1)).mean().item()
+        if torch.isnan(torch.tensor(nll)):
+            metrics["event_nll"] = "undefined"
+        else:
+            metrics["event_nll"] = nll
+            
+        # Brier (multiclass equivalent)
+        # (prob - 1)^2 for correct class + sum(prob^2) for incorrect classes
+        one_hot = torch.zeros_like(valid_probs).scatter_(1, t_evt_full[valid].unsqueeze(1), 1.0)
+        brier = torch.mean(torch.sum((valid_probs - one_hot) ** 2, dim=1)).item()
+        metrics["event_brier"] = brier
+    else:
+        metrics["event_nll"] = "undefined"
+        metrics["event_brier"] = "undefined"
+
     return metrics

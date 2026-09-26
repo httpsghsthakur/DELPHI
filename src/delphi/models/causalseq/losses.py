@@ -23,7 +23,10 @@ class CausalSeqLoss(nn.Module):
         # preds['event_type'] is (batch, seq, vocab) -> needs (batch*seq, vocab)
         
         def compute_ce(pred, target, ce_fn):
-            return ce_fn(pred.reshape(-1, pred.size(-1)), target.reshape(-1))
+            l = ce_fn(pred.reshape(-1, pred.size(-1)), target.reshape(-1))
+            if torch.isnan(l):
+                return torch.tensor(0.0, device=pred.device, requires_grad=True)
+            return l
             
         loss_evt = compute_ce(preds["event_type"], targets["event_type"], self.ce_event)
         loss_time = compute_ce(preds["time_bin"], targets["time_bin"], self.ce_time)

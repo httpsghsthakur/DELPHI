@@ -77,7 +77,11 @@ def construct_sequences_with_temporal_guard(raw_events: List[Dict], max_context:
         t_mask.append(True)
         
         # Collect strictly future events (up to max_forecast - 2 to leave room for BOS and EOS)
-        for j in range(i + 1, min(i + 1 + max_forecast - 2, len(raw_events))):
+        future_idx = i + 1
+        while future_idx < len(raw_events) and raw_events[future_idx]["timestamp"] <= cutoff_time:
+            future_idx += 1
+            
+        for j in range(future_idx, min(future_idx + max_forecast - 2, len(raw_events))):
             if raw_events[j]["timestamp"] <= cutoff_time:
                 raise ValueError("Temporal Leakage: Target event is before or at cutoff")
             targets.append(raw_events[j])

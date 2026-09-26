@@ -36,9 +36,10 @@ class CausalSeqConfig:
     lambda_target: float = 0.5
     lambda_domain: float = 0.2
     
-    # Versions
+    # Versions and Provenance
     eventembed_version: str = "v1"
     schema_version: str = "v1"
+    checkpoint_training_end_time: str = "" # Temporal provenance bound
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

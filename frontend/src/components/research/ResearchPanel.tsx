@@ -1,63 +1,60 @@
-import { useAnalysisStore } from '../../state/analysisStore';
-
-export function ResearchPanel() {
-  const { report } = useAnalysisStore();
-  
-  if (!report || !report.live_research_report) {
-    return null;
-  }
-  
-  const research = report.live_research_report;
-
+import { researchEvidence } from "../../utils/evidence";
+import type { ResearchReport } from "../../api/types";
+import { Badge, CopyButton, EmptyState, Metadata } from "../ui/Primitives";
+import { EvidencePanel } from "../evidence/EvidencePanel";
+export function ResearchPanel({
+  research,
+}: {
+  research?: ResearchReport | null;
+}) {
+  if (!research)
+    return (
+      <EmptyState
+        compact
+        title="No research report available"
+        description="Run live research or enable it when submitting an analysis to see provider activity and returned evidence."
+      />
+    );
   return (
-    <div className="bg-delphi-card border border-delphi-border rounded-lg p-5">
-      <h3 className="text-lg font-medium text-slate-200 mb-4 border-b border-delphi-border pb-2 flex justify-between items-center">
-        <span>Live Web Research</span>
-        <span className={`text-xs px-2 py-1 rounded ${research.status === 'COMPLETE' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
-          {research.status}
-        </span>
-      </h3>
-      
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-slate-900 rounded p-3 text-center">
-          <div className="text-2xl text-delphi-accent mb-1">{research.documents_fetched}</div>
-          <div className="text-xs text-slate-400 uppercase">Docs Fetched</div>
-        </div>
-        <div className="bg-slate-900 rounded p-3 text-center">
-          <div className="text-2xl text-delphi-accent mb-1">{research.source_clusters}</div>
-          <div className="text-xs text-slate-400 uppercase">Independent Clusters</div>
-        </div>
-        <div className="bg-slate-900 rounded p-3 text-center">
-          <div className="text-2xl text-delphi-accent mb-1">{research.supporting_evidence.length}</div>
-          <div className="text-xs text-slate-400 uppercase">Supporting Claims</div>
-        </div>
-        <div className="bg-slate-900 rounded p-3 text-center">
-          <div className="text-2xl text-delphi-accent mb-1">{research.conflicting_evidence.length}</div>
-          <div className="text-xs text-slate-400 uppercase">Conflicting Claims</div>
-        </div>
+    <>
+      <div className="section-intro">
+        <Badge>{research.status}</Badge>
+        <CopyButton value={research.run_id} />
       </div>
-      
-      <div className="mb-4">
-        <h4 className="text-sm font-medium text-slate-300 mb-2">Queries Executed</h4>
-        <div className="flex flex-wrap gap-2">
-          {research.queries_executed?.map((q: string, i: number) => (
-            <span key={i} className="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded">
+      <Metadata
+        data={{
+          run_id: research.run_id,
+          documents_discovered: research.documents_discovered,
+          documents_fetched: research.documents_fetched,
+          documents_rejected: research.documents_rejected,
+          source_clusters: research.source_clusters,
+          providers_used: research.providers_used,
+          temporal_validity_status: research.temporal_validity_status,
+        }}
+      />
+      <h3 className="subheading">Executed queries</h3>
+      {research.queries_executed.length ? (
+        <ol className="query-list">
+          {research.queries_executed.map((q, i) => (
+            <li key={i}>
+              <span className="mono">{String(i + 1).padStart(2, "0")}</span>
               {q}
-            </span>
+            </li>
           ))}
-        </div>
-      </div>
-      
-      <div>
-        <h4 className="text-sm font-medium text-slate-300 mb-2">Providers Used</h4>
-        <div className="flex flex-wrap gap-2">
-          {research.providers_used?.map((p: string, i: number) => (
-            <span key={i} className="text-xs bg-blue-900/30 text-blue-300 px-2 py-1 rounded border border-blue-800/50">
-              {p}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
+        </ol>
+      ) : (
+        <p className="muted">No queries reported.</p>
+      )}
+      <p className="notice">
+        The research response does not expose document titles, URLs, publisher
+        dates, or provider health. Only returned source references are shown.
+      </p>
+      {research.limitations.map((l, i) => (
+        <p className="notice warning" key={i}>
+          {l}
+        </p>
+      ))}
+      <EvidencePanel evidence={researchEvidence(research)} />
+    </>
   );
 }

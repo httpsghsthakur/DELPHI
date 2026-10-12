@@ -1,14 +1,17 @@
-// DELPHI API Types
-
+// Contracts checked against src/delphi/api/schemas and the mounted routes.
+export type JsonValue =
+  string | number | boolean | null | JsonObject | JsonValue[];
+export interface JsonObject {
+  [key: string]: JsonValue | undefined;
+}
 export interface HealthResponse {
   status: string;
   api_version: string;
   models_loaded: boolean;
   temporal_mode: string;
-  execution_mode: 'REAL' | 'SYNTHETIC' | 'UNKNOWN';
+  execution_mode: string;
   dependencies: Record<string, string>;
 }
-
 export interface ModelStatus {
   tokenizer_version: string;
   eventembed_version: string;
@@ -17,85 +20,18 @@ export interface ModelStatus {
   causalseq_version: string;
   retrieval_index_version: string;
   calibration_version: string;
+  checkpoint_timestamps: Record<string, string>;
 }
-
 export interface AnalysisRequest {
   text: string;
   source_id?: string;
   article_id?: string;
-  publication_timestamp?: string;
-  prediction_information_cutoff?: string;
-  domain?: string;
+  publication_timestamp: string;
+  prediction_information_cutoff: string;
+  domain: string;
   forecast_horizon?: number;
   live_research?: boolean;
 }
-
-export interface CurrentEventInfo {
-  event_id: string;
-  extracted_event: {
-    event_type: number;
-    actor: number;
-    target: number;
-    domain: number;
-    spans: Record<string, any>;
-  };
-}
-
-export interface CredibilityInfo {
-  source_reliability: number;
-  content_credibility: number;
-  final_credibility_score: number;
-  calibrated: boolean;
-}
-
-export interface HistoricalAnalogue {
-  event_id: string;
-  date: string;
-  similarity_score: number;
-  event_details: Record<string, any>;
-  outcomes: any[];
-}
-
-export interface FutureEventPrediction {
-  event_type: number;
-  actor?: number;
-  target?: number;
-  time_to_event_bin: number;
-  domain?: number;
-  indicators?: number[];
-  step_index: number;
-}
-
-export interface ScenarioCandidate {
-  scenario_id: string;
-  title: string;
-  trajectory: any[]; // Kept for compatibility, backend sends dicts
-  events: FutureEventPrediction[];
-  sequence_score: number;
-  generation_length: number;
-  model_version: string;
-  probability?: number;
-  uncalibrated_weight?: number;
-}
-
-export interface IndicatorData {
-  indicator_id: string;
-  description: string;
-  expected_event_type: number;
-  time_window: string;
-  associated_scenario: string;
-  importance: number;
-}
-
-export interface EvidenceData {
-  evidence_id: string;
-  source_id: string;
-  timestamp: string;
-  evidence_type: string;
-  scenario_linkage: string;
-  role: 'SUPPORTING' | 'CONFLICTING' | 'NEUTRAL';
-}
-
 export interface APIProvenance {
   prediction_cutoff: string;
   tokenizer_version: string;
@@ -109,41 +45,102 @@ export interface APIProvenance {
   checkpoint_training_bounds: Record<string, string>;
   temporal_validation_status: string;
 }
-
 export interface APIScenario {
   scenario_id: string;
-  title?: string; // added back to UI
-  trajectory: any[];
+  trajectory: JsonObject[];
   raw_score: number;
   normalized_weight: number;
-  probability?: number;
+  probability?: number | null;
 }
-
+export interface ResearchEvidence {
+  evidence_id: string;
+  document_id: string;
+  claim: string;
+  excerpt: string;
+  timestamp: string;
+  source: string;
+  credibility_score: number;
+  relevance_score: number;
+  temporal_valid: boolean;
+  direction: string;
+  linked_event: string;
+  linked_scenario: string;
+}
+export interface ResearchReport {
+  run_id: string;
+  queries_executed: string[];
+  providers_used: string[];
+  documents_discovered: number;
+  documents_fetched: number;
+  documents_rejected: number;
+  source_clusters: number;
+  supporting_evidence: ResearchEvidence[];
+  conflicting_evidence: ResearchEvidence[];
+  source_credibility_avg: number;
+  source_diversity: number;
+  temporal_validity_status: string;
+  limitations: string[];
+  status: string;
+}
 export interface ForecastReport {
-  analysis_id?: string;
-  timestamp?: string;
-  current_event: any;
-  credibility_assessment: any;
-  historical_analogues: any[];
+  current_event: JsonObject;
+  credibility_assessment: JsonObject;
+  historical_analogues: JsonObject[];
   scenarios: APIScenario[];
   indicators: string[];
-  evidence: any[];
-  live_research_report?: any;
+  evidence: JsonObject[];
+  live_research_report?: ResearchReport | null;
   calibration_status: string;
   provenance: APIProvenance;
   limitations: string[];
 }
-
+export interface HistoricalSearchRequest {
+  text: string;
+  cutoff: string;
+  top_k: number;
+  domain?: string;
+}
+export interface HistoricalSearchResponse {
+  analogues: JsonObject[];
+  similarity_components: JsonObject;
+  historical_outcomes: JsonValue[];
+  retrieval_metadata: JsonObject;
+  temporal_safety_status: string;
+}
+export interface BacktestRequest {
+  domain: string;
+  window_days: number;
+}
+export interface BacktestRunResponse {
+  run_id: string;
+  status: string;
+  configuration?: BacktestRequest;
+  created_at?: string;
+  metrics?: JsonObject | null;
+  provenance?: JsonObject | null;
+  completed_at?: string | null;
+}
 export interface APIError {
   error_code: string;
   message: string;
-  timestamp: string;
-  request_id: string;
+  timestamp?: string;
+  request_id?: string;
 }
-
-export interface BacktestRunResponse {
-  run_id: string;
-  status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
-  metrics?: Record<string, any>;
-  provenance?: APIProvenance;
+// Graph data is optional. The current API does not return this structure.
+export interface GraphNode {
+  id: string;
+  label: string;
+  kind: "observed" | "inferred" | "hypothetical";
+  evidence?: JsonObject;
+}
+export interface GraphEdge {
+  id: string;
+  source: string;
+  target: string;
+  kind: GraphNode["kind"];
+  evidence?: JsonObject;
+}
+export interface CausalGraph {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
 }

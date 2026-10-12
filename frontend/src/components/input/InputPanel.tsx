@@ -1,143 +1,274 @@
-import { useState } from 'react';
-import { useAnalysisStore } from '../../state/analysisStore';
-import { apiClient } from '../../api/client';
-import { validateTemporal } from '../../utils/validation';
-
-export function InputPanel() {
-  const { setLoading, setReport, setError, loading } = useAnalysisStore();
-  
-  const [text, setText] = useState('');
-  const [pubDate, setPubDate] = useState(new Date().toISOString().slice(0, 16));
-  const [cutoffDate, setCutoffDate] = useState(new Date().toISOString().slice(0, 16));
-  const [domain, setDomain] = useState('geopolitics');
-  const [liveResearch, setLiveResearch] = useState(false);
-  
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+import { useState, type FormEvent } from "react";
+import {
+  ArrowRight,
+  FileText,
+  Globe,
+  Loader2,
+  Plus,
+  ShieldCheck,
+  X,
+} from "lucide-react";
+import { apiClient } from "../../api/client";
+import type { AnalysisRequest, ResearchReport } from "../../api/types";
+import { useAnalysisStore } from "../../state/analysisStore";
+import { localDateTime, validateTemporal } from "../../utils/validation";
+import { ErrorState } from "../ui/Primitives";
+export function InputPanel({
+  researchOnly = false,
+  onComplete,
+}: {
+  researchOnly?: boolean;
+  onComplete?: (report?: ResearchReport) => void;
+}) {
+  const [text, setText] = useState(""),
+    [pubDate, setPubDate] = useState(localDateTime),
+    [cutoffDate, setCutoffDate] = useState(localDateTime);
+  const [horizon, setHorizon] = useState(30),
+    [domains, setDomains] = useState<string[]>(["geopolitics"]),
+    [domainInput, setDomainInput] = useState("");
+  const [liveResearch, setLiveResearch] = useState(false),
+    [validationError, setValidationError] = useState<string | null>(null),
+    [researchLoading, setResearchLoading] = useState(false);
+  const {
+    setLoading,
+    setReport,
+    setError,
+    loading: analysisLoading,
+    error,
+    addResearch,
+  } = useAnalysisStore();
+  const loading = researchOnly ? researchLoading : analysisLoading;
+  function addDomain() {
+    const d = domainInput.trim().toLowerCase();
+    if (d && !domains.includes(d)) setDomains([...domains, d]);
+    setDomainInput("");
+  }
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    
-    if (!text.trim()) {
-      setValidationError("Article text is required.");
+    const problem = !text.trim()
+      ? "Article or event text is required."
+      : validateTemporal(pubDate, cutoffDate) ||
+        (!domains.length ? "Add at least one domain." : "") ||
+        (!Number.isInteger(horizon) || horizon < 1
+          ? "Forecast horizon must be a positive whole number of days."
+          : "");
+    if (problem) {
+      setValidationError(problem);
       return;
     }
-
-    const temporalError = validateTemporal(pubDate, cutoffDate);
-    if (temporalError) {
-      setValidationError(temporalError);
-      return;
-    }
-    
     setValidationError(null);
-    setLoading(true);
-    
+    setError(null);
+    const request: AnalysisRequest = {
+      text: text.trim(),
+      publication_timestamp: new Date(pubDate).toISOString(),
+      prediction_information_cutoff: new Date(cutoffDate).toISOString(),
+      domain: domains.join(", "),
+      forecast_horizon: horizon,
+      live_research: researchOnly || liveResearch,
+    };
+    if (researchOnly) setResearchLoading(true);
+    else setLoading(true);
     try {
-      // Create UTC strings for API
-      const pubUtc = new Date(pubDate).toISOString();
-      const cutoffUtc = new Date(cutoffDate).toISOString();
-      
-      const response = await apiClient.analyze({
-        text,
-        publication_timestamp: pubUtc,
-        prediction_information_cutoff: cutoffUtc,
-        domain,
-        live_research: liveResearch
-      });
-      
-      setReport(response);
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred.');
+      if (researchOnly) {
+        const result = await apiClient.research(request);
+        addResearch(result);
+        onComplete?.(result);
+      } else {
+        const result = await apiClient.analyze(request, crypto.randomUUID());
+        setReport(result, request);
+        onComplete?.();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "The operation failed.");
     } finally {
-      setLoading(false);
+      if (researchOnly) setResearchLoading(false);
+      else setLoading(false);
     }
-  };
-
+  }
   return (
-    <form onSubmit={handleSubmit} className="bg-delphi-card border border-delphi-border rounded-lg p-5">
-      <h3 className="text-lg font-medium text-slate-200 mb-4 border-b border-delphi-border pb-2">Analysis Input</h3>
-      
-      {validationError && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded text-red-400 text-sm">
-          {validationError}
-        </div>
-      )}
-      
-      <div className="space-y-4">
-        <div>
-          <label className="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Intelligence Source / Article</label>
-          <textarea 
-            value={text}
-            onChange={e => setText(e.target.value)}
-            className="w-full h-32 bg-slate-900 border border-slate-700 rounded-md p-3 text-sm text-slate-200 focus:outline-none focus:border-delphi-accent focus:ring-1 focus:ring-delphi-accent custom-scrollbar"
-            placeholder="Paste article text or intelligence report here..."
-            disabled={loading}
-          />
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Publication Date</label>
-            <input 
-              type="datetime-local" 
-              value={pubDate}
-              onChange={e => setPubDate(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-md p-2 text-sm text-slate-200 focus:outline-none focus:border-delphi-accent"
-              disabled={loading}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Prediction Cutoff</label>
-            <input 
-              type="datetime-local" 
-              value={cutoffDate}
-              onChange={e => setCutoffDate(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-md p-2 text-sm text-slate-200 focus:outline-none focus:border-delphi-accent"
-              disabled={loading}
-            />
-          </div>
-        </div>
-        
-        <div>
-          <label className="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Domain</label>
-          <select 
-            value={domain}
-            onChange={e => setDomain(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 rounded-md p-2 text-sm text-slate-200 focus:outline-none focus:border-delphi-accent"
-            disabled={loading}
-          >
-            <option value="geopolitics">Geopolitics</option>
-            <option value="economics">Economics</option>
-            <option value="security">Security</option>
-          </select>
-        </div>
-        
-        <div className="flex items-center mt-2 mb-4">
-          <input
-            type="checkbox"
-            id="liveResearch"
-            checked={liveResearch}
-            onChange={(e) => setLiveResearch(e.target.checked)}
-            disabled={loading}
-            className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-delphi-accent focus:ring-delphi-accent focus:ring-offset-slate-900"
-          />
-          <label htmlFor="liveResearch" className="ml-2 block text-sm text-slate-300">
-            Enable Live Web Research
-          </label>
-        </div>
-        
-        <button 
-          type="submit" 
+    <form onSubmit={handleSubmit} className="composer" noValidate>
+      <div className="composer-heading">
+        <span>
+          <FileText size={18} />
+          {researchOnly ? "Research context" : "Event context"}
+        </span>
+        <span className="muted">Text input</span>
+      </div>
+      <div className="composer-body">
+        <label htmlFor="event-text">
+          Article or event description <span className="required">*</span>
+        </label>
+        <p className="field-helper" id="event-help">
+          Include the actors, actions, and context you want to investigate.
+        </p>
+        <textarea
+          id="event-text"
+          placeholder="Paste article text or describe an event to begin…"
+          aria-describedby="event-help"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
           disabled={loading}
-          className="w-full bg-delphi-blue hover:bg-blue-800 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-        >
-          {loading ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Processing...
-            </>
-          ) : (
-            'Analyze'
+        />
+        <div className="editor-footer">
+          <span>Article URL import is unavailable in this API.</span>
+          <span className="mono">
+            {text.length.toLocaleString()} characters
+          </span>
+        </div>
+        <div className="form-section-title">
+          <span>Temporal boundaries</span>
+          <small>
+            Dates use your local timezone; requests are sent in UTC.
+          </small>
+        </div>
+        <div className="field-grid">
+          <div>
+            <label htmlFor="publication">Publication date</label>
+            <input
+              id="publication"
+              type="datetime-local"
+              value={pubDate}
+              onChange={(e) => setPubDate(e.target.value)}
+              disabled={loading}
+            />
+            <p className="field-helper">
+              When the article or event was published.
+            </p>
+          </div>
+          <div>
+            <label htmlFor="cutoff">Prediction cutoff</label>
+            <input
+              id="cutoff"
+              type="datetime-local"
+              value={cutoffDate}
+              onChange={(e) => setCutoffDate(e.target.value)}
+              disabled={loading}
+            />
+            <p className="field-helper">
+              Latest information permitted in the analysis.
+            </p>
+          </div>
+        </div>
+        <div className="form-section-title">
+          <span>
+            {researchOnly ? "Research scope" : "Forecast configuration"}
+          </span>
+        </div>
+        <div className="field-grid configuration-grid">
+          {!researchOnly && (
+            <div>
+              <label htmlFor="horizon">Forecast horizon</label>
+              <div className="input-suffix">
+                <input
+                  id="horizon"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={horizon}
+                  onChange={(e) => setHorizon(Number(e.target.value))}
+                  disabled={loading}
+                />
+                <span>days</span>
+              </div>
+              <p className="field-helper">
+                A positive integer, as accepted by the API.
+              </p>
+            </div>
           )}
+          <div>
+            <label htmlFor="domain">Domains</label>
+            <div className="domains">
+              {domains.map((d) => (
+                <span key={d}>
+                  {d}
+                  <button
+                    type="button"
+                    aria-label={`Remove ${d}`}
+                    onClick={() => setDomains(domains.filter((x) => x !== d))}
+                    disabled={loading}
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="domain-add">
+              <input
+                id="domain"
+                placeholder="Add a domain"
+                value={domainInput}
+                onChange={(e) => setDomainInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addDomain();
+                  }
+                }}
+                disabled={loading}
+              />
+              <button
+                className="button secondary small"
+                type="button"
+                onClick={addDomain}
+                disabled={loading || !domainInput.trim()}
+              >
+                <Plus size={14} />
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="composer-options">
+          {!researchOnly && (
+            <label className="toggle-row">
+              <Globe size={17} />
+              <span>
+                Live web research
+                <small>
+                  Retrieve evidence through configured research providers.
+                </small>
+              </span>
+              <input
+                type="checkbox"
+                checked={liveResearch}
+                onChange={(e) => setLiveResearch(e.target.checked)}
+                disabled={loading}
+              />
+            </label>
+          )}
+          <div className="toggle-row">
+            <ShieldCheck size={17} />
+            <span>
+              Temporal validation
+              <small>
+                Publication must precede cutoff. Strict model validation is
+                controlled by the server.
+              </small>
+            </span>
+            <span className="option-lock">Enforced</span>
+          </div>
+        </div>
+        {(validationError || error) && (
+          <ErrorState message={validationError || error || ""} />
+        )}
+      </div>
+      <div className="composer-footer">
+        <span>
+          {loading
+            ? "Request submitted. The API does not expose stage progress."
+            : "Results are generated from the connected DELPHI engine."}
+        </span>
+        <button className="button primary" type="submit" disabled={loading}>
+          {loading ? (
+            <Loader2 className="spin" size={16} />
+          ) : (
+            <ArrowRight size={16} />
+          )}{" "}
+          {loading
+            ? "Waiting for response…"
+            : researchOnly
+              ? "Run Research"
+              : "Run Analysis"}
         </button>
       </div>
     </form>

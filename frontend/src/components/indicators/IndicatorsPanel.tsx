@@ -1,35 +1,57 @@
-import { IndicatorData } from '../../api/types';
-import { Target } from 'lucide-react';
-import { mapEventType } from '../../utils/formatting';
-
-interface Props {
-  indicators: IndicatorData[];
-}
-
-export function IndicatorsPanel({ indicators }: Props) {
-  if (!indicators || indicators.length === 0) {
-    return <div className="text-sm text-slate-500 italic">No indicators extracted.</div>;
-  }
-
+import { useState } from "react";
+import { EmptyState } from "../ui/Primitives";
+export function IndicatorsPanel({ indicators }: { indicators: string[] }) {
+  const [query, setQuery] = useState("");
+  const rows = indicators.filter((i) =>
+    i.toLowerCase().includes(query.toLowerCase()),
+  );
   return (
-    <div className="space-y-3">
-      {indicators.map(indicator => (
-        <div key={indicator.indicator_id} className="bg-slate-900/50 border border-slate-800 rounded p-3">
-          <div className="flex items-start gap-3">
-            <Target className="w-4 h-4 text-delphi-accent mt-0.5 shrink-0" />
-            <div className="flex-1">
-              <h4 className="text-sm font-medium text-slate-200 mb-1">{indicator.description}</h4>
-              <div className="flex flex-wrap gap-2 text-[10px] font-mono text-slate-400">
-                <span className="bg-slate-800 px-1.5 py-0.5 rounded">Event: {mapEventType(indicator.expected_event_type)}</span>
-                <span className="bg-slate-800 px-1.5 py-0.5 rounded">Window: {indicator.time_window}</span>
-                {indicator.associated_scenario && (
-                  <span className="bg-slate-800 px-1.5 py-0.5 rounded text-delphi-accent">Scenario ID: {indicator.associated_scenario.substring(0,8)}</span>
-                )}
-              </div>
-            </div>
-          </div>
+    <>
+      <p className="notice">
+        The API returns indicator identifiers only. Values, descriptions, source
+        metadata, and historical series are unavailable; no trend can be
+        calculated.
+      </p>
+      <div className="table-toolbar">
+        <input
+          aria-label="Filter indicators"
+          placeholder="Filter indicator identifiers…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+      {rows.length ? (
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Indicator identifier</th>
+                <th>Value</th>
+                <th>Source / timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((id) => (
+                <tr key={id}>
+                  <td className="mono">{id}</td>
+                  <td className="muted">Not returned</td>
+                  <td className="muted">Not returned</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      ))}
-    </div>
+      ) : (
+        <EmptyState
+          compact
+          title={
+            indicators.length
+              ? "No matching indicators"
+              : "No indicators returned"
+          }
+          description="Indicators will be listed when supplied by an analysis."
+        />
+      )}
+    </>
   );
 }

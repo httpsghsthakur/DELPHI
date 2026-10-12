@@ -1,61 +1,159 @@
-import { EvidenceData } from '../../api/types';
-import { formatTimestamp } from '../../utils/formatting';
-import { CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
-
-interface Props {
-  supporting: EvidenceData[];
-  contradictory: EvidenceData[];
-}
-
-export function EvidencePanel({ supporting, contradictory }: Props) {
-  const renderEvidence = (items: EvidenceData[], type: 'supporting' | 'contradictory') => {
-    if (!items || items.length === 0) {
-      return <div className="text-sm text-slate-500 italic px-4 py-2">No {type} evidence.</div>;
-    }
-
-    return (
-      <div className="space-y-2 px-4 py-2">
-        {items.map(item => (
-          <div key={item.evidence_id} className="flex items-start gap-3 bg-slate-900/50 p-2 rounded">
-            {type === 'supporting' ? (
-              <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
-            ) : (
-              <XCircle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
-            )}
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-slate-300 uppercase tracking-wider">{item.evidence_type}</span>
-                <span className="text-[10px] text-slate-500">{formatTimestamp(item.timestamp)}</span>
-              </div>
-              <div className="text-[10px] font-mono text-slate-400 mt-1 flex items-center gap-1">
-                Source: {item.source_id.substring(0,8)} 
-                <ExternalLink className="w-3 h-3 cursor-pointer hover:text-delphi-accent" />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+import { uniqueEvidence } from "../../utils/evidence";
+import { display } from "../../utils/presentation";
+import { useCallback, useState } from "react";
+import { ArrowUpDown, Search } from "lucide-react";
+import type { JsonObject } from "../../api/types";
+import {
+  Badge,
+  CopyButton,
+  Drawer,
+  EmptyState,
+  Metadata,
+  RawDetails,
+  SourceLink,
+} from "../ui/Primitives";
+export function EvidencePanel({ evidence }: { evidence: JsonObject[] }) {
+  const [query, setQuery] = useState(""),
+    [direction, setDirection] = useState("all"),
+    [sort, setSort] = useState(false),
+    [selected, setSelected] = useState<JsonObject | null>(null);
+  const close = useCallback(() => setSelected(null), []);
+  const rows = uniqueEvidence(evidence)
+    .filter(
+      (e) =>
+        (direction === "all" ||
+          String(e.direction || e.role).toLowerCase() === direction) &&
+        JSON.stringify(e).toLowerCase().includes(query.toLowerCase()),
+    )
+    .sort((a, b) =>
+      sort
+        ? String(b.timestamp || "").localeCompare(String(a.timestamp || ""))
+        : 0,
     );
-  };
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-slate-700 rounded-md overflow-hidden bg-slate-900/30">
-      <div className="border-r border-slate-700 md:border-b-0 border-b">
-        <h4 className="text-xs font-semibold text-green-400 uppercase tracking-wider p-3 border-b border-slate-700 bg-slate-900/50">
-          Supporting Evidence
-        </h4>
-        <div className="max-h-60 overflow-y-auto custom-scrollbar">
-          {renderEvidence(supporting, 'supporting')}
+    <>
+      <div className="table-toolbar">
+        <div className="filter-input">
+          <Search size={15} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search claims, sources, or IDs…"
+            aria-label="Search evidence"
+          />
         </div>
+        <select
+          value={direction}
+          onChange={(e) => setDirection(e.target.value)}
+          aria-label="Evidence direction"
+        >
+          <option value="all">All evidence</option>
+          <option value="supporting">Supporting</option>
+          <option value="conflicting">Conflicting</option>
+          <option value="neutral">Neutral</option>
+        </select>
+        <span className="result-count">{rows.length} records</span>
       </div>
-      <div>
-        <h4 className="text-xs font-semibold text-red-400 uppercase tracking-wider p-3 border-b border-slate-700 bg-slate-900/50">
-          Conflicting Evidence
-        </h4>
-        <div className="max-h-60 overflow-y-auto custom-scrollbar">
-          {renderEvidence(contradictory, 'contradictory')}
+      {!rows.length ? (
+        <EmptyState
+          compact
+          title={
+            evidence.length ? "No matching evidence" : "No evidence returned"
+          }
+          description={
+            evidence.length
+              ? "Try another search or direction filter."
+              : "Source-attributed evidence will appear here when the engine returns it."
+          }
+        />
+      ) : (
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Evidence / claim</th>
+                <th>Source</th>
+                <th>Direction</th>
+                <th>
+                  <button className="table-sort" onClick={() => setSort(!sort)}>
+                    Timestamp
+                    <ArrowUpDown size={12} />
+                  </button>
+                </th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((ev, i) => (
+                <tr
+                  key={String(
+                    ev.evidence_id || `${ev.source_id || "source"}-${i}`,
+                  )}
+                >
+                  <td>
+                    <span className="cell-title">
+                      {display(
+                        ev.claim || ev.summary || ev.role || ev.evidence_id,
+                      )}
+                    </span>
+                    <small className="mono">
+                      {display(ev.evidence_id || ev.document_id)}
+                    </small>
+                  </td>
+                  <td>
+                    <SourceLink
+                      url={ev.url || ev.canonical_url}
+                      children={display(ev.source || ev.source_id)}
+                    />
+                  </td>
+                  <td>
+                    <Badge
+                      tone={
+                        String(ev.direction).toLowerCase() === "conflicting"
+                          ? "warning"
+                          : ""
+                      }
+                    >
+                      {display(ev.direction || ev.role)}
+                    </Badge>
+                  </td>
+                  <td className="mono">{display(ev.timestamp)}</td>
+                  <td>
+                    <button
+                      className="button secondary small"
+                      onClick={() => setSelected(ev)}
+                    >
+                      Inspect
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </div>
-    </div>
+      )}
+      {selected && (
+        <Drawer title="Evidence detail" onClose={close}>
+          <Badge>{display(selected.direction || selected.role)}</Badge>
+          <h3>
+            {display(
+              selected.claim ||
+                selected.summary ||
+                selected.evidence_id ||
+                selected.source_id,
+            )}
+          </h3>
+          {selected.excerpt && (
+            <blockquote>{display(selected.excerpt)}</blockquote>
+          )}
+          <SourceLink url={selected.url || selected.canonical_url} />
+          {typeof selected.evidence_id === "string" && (
+            <CopyButton value={selected.evidence_id} />
+          )}
+          <Metadata data={selected} />
+          <RawDetails data={selected} />
+        </Drawer>
+      )}
+    </>
   );
 }

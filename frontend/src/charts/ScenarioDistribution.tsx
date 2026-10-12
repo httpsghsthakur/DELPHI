@@ -1,68 +1,129 @@
-import { ScenarioCandidate } from '../api/types';
-import { formatPercent } from '../utils/formatting';
-
-interface Props {
-  scenarios: ScenarioCandidate[];
-}
-
-export function ScenarioDistribution({ scenarios }: Props) {
-  if (!scenarios || scenarios.length === 0) {
-    return <div className="text-sm text-slate-500 italic">No scenarios generated.</div>;
-  }
-
-  // Sort by weight
-  const sorted = [...scenarios].sort((a, b) => {
-    const aVal = a.probability ?? a.uncalibrated_weight ?? 0;
-    const bVal = b.probability ?? b.uncalibrated_weight ?? 0;
-    return bVal - aVal;
-  });
-
-  const isCalibrated = sorted[0].probability !== undefined;
-
+import { useCallback, useState } from "react";
+import type { APIScenario, ForecastReport } from "../api/types";
+import {
+  Badge,
+  CopyButton,
+  Drawer,
+  EmptyState,
+  Metadata,
+  RawDetails,
+} from "../components/ui/Primitives";
+export function ScenarioDistribution({
+  scenarios,
+  report,
+}: {
+  scenarios: APIScenario[];
+  report?: ForecastReport | null;
+}) {
+  const [query, setQuery] = useState(""),
+    [selected, setSelected] = useState<APIScenario | null>(null),
+    [sort, setSort] = useState("weight");
+  const close = useCallback(() => setSelected(null), []);
+  const items = scenarios
+    .filter((s) =>
+      JSON.stringify(s).toLowerCase().includes(query.toLowerCase()),
+    )
+    .sort((a, b) =>
+      sort === "weight"
+        ? b.normalized_weight - a.normalized_weight
+        : a.scenario_id.localeCompare(b.scenario_id),
+    );
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-          {isCalibrated ? 'Probability Distribution' : 'Normalized Scenario Weight'}
-        </span>
-        {!isCalibrated && (
-          <span className="text-[10px] text-yellow-500 border border-yellow-500/30 bg-yellow-500/10 px-1.5 py-0.5 rounded uppercase font-medium">
-            Uncalibrated / Research Mode
-          </span>
-        )}
+    <>
+      <div className="notice warning">
+        Normalized scenario weights are model outputs, not validated
+        probabilities. Calibration status:{" "}
+        {report?.calibration_status || "Not reported"}.
       </div>
-
-      <div className="space-y-3">
-        {sorted.map((scenario) => {
-          const value = scenario.probability ?? scenario.uncalibrated_weight ?? 0;
-          return (
-            <div key={scenario.scenario_id} className="relative">
-              <div className="flex justify-between text-sm mb-1">
-                <span className="font-medium text-slate-200 truncate pr-4" title={scenario.title}>
-                  {scenario.title}
-                </span>
-                <span className="font-mono font-medium text-delphi-accent">
-                  {formatPercent(value)}
-                </span>
-              </div>
-              <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-delphi-accent/80 transition-all duration-1000" 
-                  style={{ width: `${value * 100}%` }}
-                />
-              </div>
-              <div className="mt-2 pl-2 border-l-2 border-slate-700/50 space-y-2">
-                {scenario.events?.map((ev, i) => (
-                   <div key={i} className="text-xs text-slate-400 flex items-center gap-2">
-                     <span className="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0" />
-                     <span>Step {ev.step_index}: Type {ev.event_type}</span>
-                   </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+      <div className="table-toolbar">
+        <input
+          aria-label="Search scenarios"
+          placeholder="Search scenario IDs or trajectories…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <select
+          aria-label="Sort scenarios"
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+        >
+          <option value="weight">Highest weight</option>
+          <option value="id">Scenario ID</option>
+        </select>
       </div>
-    </div>
+      {!items.length ? (
+        <EmptyState
+          compact
+          title="No scenarios to display"
+          description={
+            scenarios.length
+              ? "No scenario matches your search."
+              : "Forecast trajectories will appear when the engine supplies them."
+          }
+        />
+      ) : (
+        <div className="scenario-list">
+          {items.map((s, i) => (
+            <button
+              className="scenario-row"
+              key={s.scenario_id}
+              onClick={() => setSelected(s)}
+            >
+              <span className="scenario-number mono">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div className="scenario-main">
+                <strong>{s.scenario_id}</strong>
+                <span>
+                  {s.trajectory.length} returned trajectory steps · Raw score{" "}
+                  {s.raw_score}
+                </span>
+                <div className="weight-track">
+                  <i
+                    style={{
+                      width: `${Math.max(0, Math.min(1, s.normalized_weight)) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="scenario-weight mono">
+                <strong>{s.normalized_weight.toFixed(3)}</strong>
+                <small>normalized weight</small>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+      {selected && (
+        <Drawer title="Scenario detail" onClose={close}>
+          <Badge tone="warning">Model-generated trajectory</Badge>
+          <h3>{selected.scenario_id}</h3>
+          <CopyButton value={selected.scenario_id} />
+          <Metadata
+            data={{
+              raw_score: selected.raw_score,
+              normalized_weight: selected.normalized_weight,
+              calibration_status: report?.calibration_status,
+            }}
+          />
+          <h3>Trajectory</h3>
+          <div className="timeline">
+            {selected.trajectory.map((step, i) => (
+              <div className="timeline-step" key={i}>
+                <span className="mono">{String(i + 1).padStart(2, "0")}</span>
+                <Metadata data={step} />
+              </div>
+            ))}
+          </div>
+          <p className="notice">
+            Trigger conditions, mechanisms, and validated probabilities are not
+            provided by this API.
+          </p>
+          {report && (
+            <RawDetails data={report.provenance} title="Forecast provenance" />
+          )}
+        </Drawer>
+      )}
+    </>
   );
 }

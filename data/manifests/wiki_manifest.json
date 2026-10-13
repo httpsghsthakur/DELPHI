@@ -1,0 +1,13 @@
+{
+  "dataset_name": "Wiki_Events",
+  "source": "Wikipedia",
+  "source_url": "https://en.wikipedia.org/w/api.php",
+  "retrieval_timestamp": "2026-09-27T05:17:57.908778Z",
+  "record_count": 0,
+  "min_timestamp": "",
+  "max_timestamp": "",
+  "schema_version": "v1",
+  "checksum": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "license/usage_notes": "CC-BY-SA",
+  "processing_version": "1.0"
+}

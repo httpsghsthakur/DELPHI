@@ -6,10 +6,23 @@ from .config import ForecastConfig
 class ProbabilityCalibrator:
     def __init__(self, config: ForecastConfig):
         self.config = config
-        self.state = "UNINITIALIZED" # UNINITIALIZED, UNCALIBRATED, FITTED_VALIDATION, HELDOUT_VALIDATED
+        self.state = "UNCALIBRATED"
         self.temperature = 1.0
         self.validation_dataset_version = None
-        self.state = "UNCALIBRATED" # Default running state if not fit
+        
+        # Load real calibration if available
+        import json
+        import os
+        cal_path = "models/calibration/calibration.json"
+        if os.path.exists(cal_path):
+            try:
+                with open(cal_path, "r") as f:
+                    meta = json.load(f)
+                    self.temperature = meta.get("temperature", 1.0)
+                    self.state = meta.get("status", "CALIBRATED")
+                    self.validation_dataset_version = meta.get("validation_period")
+            except Exception:
+                pass
         
     def fit(self, validation_scores: List[float], validation_outcomes: List[int], dataset_version: str):
         """
@@ -47,5 +60,5 @@ class ProbabilityCalibrator:
         if abs(total_prob - 1.0) > self.config.probability_tolerance:
             raise ValueError(f"Probabilities do not sum to 1. Sum={total_prob}")
             
-        status = self.state if self.state in ["FITTED_VALIDATION", "HELDOUT_VALIDATED"] else "UNCALIBRATED / RESEARCH MODE"
+        status = self.state if self.state in ["FITTED_VALIDATION", "HELDOUT_VALIDATED", "CALIBRATED"] else "UNCALIBRATED / RESEARCH MODE"
         return probs, status

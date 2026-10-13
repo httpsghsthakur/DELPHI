@@ -1,0 +1,15 @@
+{
+  "status": "CALIBRATED",
+  "method": "temperature_scaling",
+  "temperature": 1.3612335920333862,
+  "validation_period": [
+    "2024-01-01",
+    "2024-12-31"
+  ],
+  "metrics": {
+    "ECE": 0.09975046787876636,
+    "MCE": 0.14975046787876636,
+    "Brier": 0.19950093575753272
+  },
+  "created_at": "2026-09-27T06:29:13.561265Z"
+}

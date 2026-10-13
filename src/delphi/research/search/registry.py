@@ -3,6 +3,7 @@ from typing import Dict
 from .base import SearchProvider
 from .serpapi_provider import SerpApiProvider
 from .gdelt_provider import GdeltProvider
+from .wikipedia_provider import WikipediaProvider
 
 class ProviderRegistry:
     def __init__(self):
@@ -22,6 +23,9 @@ class ProviderRegistry:
         if primary in self.providers:
             chain.append(self.providers[primary])
             
+        if "wikipedia" in self.providers and primary != "wikipedia":
+            chain.append(self.providers["wikipedia"])
+            
         if "gdelt" in self.providers and primary != "gdelt":
             chain.append(self.providers["gdelt"])
             
@@ -39,3 +43,4 @@ else:
     
 gdelt_enabled = os.environ.get("GDELT_ENABLED", "true").lower() == "true"
 registry.register("gdelt", GdeltProvider(enabled=gdelt_enabled))
+registry.register("wikipedia", WikipediaProvider())

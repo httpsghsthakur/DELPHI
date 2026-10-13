@@ -12,9 +12,7 @@ from .confidence import ConfidenceEvaluator
 from .validation import ForecastValidator
 from .adapters import (
     EventExtractionAdapter, CredibilityAdapter, 
-    HistoricalRetrievalAdapter, CausalForecastAdapter,
-    MockActualEventNet, MockActualCredNet, 
-    MockActualHistoricalMatcher, MockActualCausalSeq
+    HistoricalRetrievalAdapter, CausalForecastAdapter
 )
 from .real_adapters import load_real_models
 from ..research.engine import LiveResearchEngine
@@ -29,20 +27,17 @@ class ForecastOrchestrator:
         self.confidence_evaluator = ConfidenceEvaluator(config)
         
         
-        if config.execution_mode == "REAL":
-            # Load real models
+        # Load real models
+        try:
             real_models = load_real_models(config.models_dir, config.indexes_dir)
             self.event_net_model = real_models["eventnet"]
             self.cred_net_model = real_models["crednet"]
             self.hist_matcher_model = real_models["historical_matcher"]
             self.causal_seq_model = real_models["causalseq"]
-        else:
-            # Instantiate mock/synthetic model integrations
-            self.event_net_model = MockActualEventNet()
-            self.cred_net_model = MockActualCredNet()
-            self.hist_matcher_model = MockActualHistoricalMatcher()
-            self.causal_seq_model = MockActualCausalSeq()
-        
+        except Exception as e:
+            # We want to fail explicitly if a real model cannot load, not fall back to a mock.
+            raise RuntimeError(f"REAL SYSTEM ACTIVATION FAILED: {str(e)}")
+            
         self.event_extractor = EventExtractionAdapter(self.event_net_model)
         self.credibility_assessor = CredibilityAdapter(self.cred_net_model)
         self.historical_retriever = HistoricalRetrievalAdapter(self.hist_matcher_model)
@@ -64,10 +59,28 @@ class ForecastOrchestrator:
         if getattr(request, 'live_research', False):
             res_report = self.research_engine.run_research(current_event, request.prediction_information_cutoff)
             research_report_dict = res_report.model_dump()
+            
+            from .schemas import EvidenceItem as ForecastEvidenceItem
+            
+            def convert_ev(ev):
+                return ForecastEvidenceItem(
+                    source_id=ev.document_id,
+                    timestamp=ev.timestamp,
+                    role="live_research",
+                    direction=ev.direction,
+                    model_version="v1",
+                    content={
+                        "claim": ev.claim,
+                        "excerpt": ev.excerpt,
+                        "source": ev.source,
+                        "credibility_score": ev.credibility_score
+                    }
+                )
+                
             for ev in res_report.supporting_evidence:
-                evidence_registry.add_evidence(ev)
+                evidence_registry.add_evidence(convert_ev(ev))
             for ev in res_report.conflicting_evidence:
-                evidence_registry.add_evidence(ev)
+                evidence_registry.add_evidence(convert_ev(ev))
         
         # 4. Historical Intelligence via Real Adapter
         historical_analogues = self.historical_retriever.retrieve(
@@ -123,7 +136,10 @@ class ForecastOrchestrator:
             confidence_metadata=confidence,
             provenance=prov,
             temporal_safety_status="VALID" if evidence_registry.validate_cutoff(request.prediction_information_cutoff) else "INVALID",
-            limitations=["Discrete time bins", "Uncalibrated models in research mode"],
+            limitations=[
+                "Discrete time bins",
+                "Temperature-calibrated on historical validation data" if cal_status == "CALIBRATED" else "Uncalibrated models in research mode"
+            ],
             forecast_status=cal_status
         )
         

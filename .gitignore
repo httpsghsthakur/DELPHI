@@ -21,6 +21,8 @@ indexes/historical_events/*
 node_modules/
 dist/
 build/
+*.egg-info/
+delphi.egg-info/
 *.db
 mlruns/
 logs/

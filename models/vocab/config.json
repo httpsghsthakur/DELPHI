@@ -1,10 +1,8 @@
 {
-  "normalization": {},
   "sequence": {
-    "max_length": 128,
+    "max_length": 256,
     "add_bos": true,
-    "add_eos": true,
-    "truncation": true,
-    "padding": "longest"
-  }
+    "add_eos": true
+  },
+  "normalization": {}
 }

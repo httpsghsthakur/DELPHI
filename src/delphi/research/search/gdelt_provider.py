@@ -30,12 +30,31 @@ class GdeltProvider(SearchProvider):
             "format": "json"
         }
         
+        import time
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.retry import Retry
+
+        # Configure session with retries for 429 and timeouts
+        session = requests.Session()
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=2, # 2, 4, 8 seconds
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["GET"]
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        session.headers.update({
+            "User-Agent": "DELPHI_Forecast_Engine/1.0 (https://github.com/delphi-project/delphi; admin@delphi.local)"
+        })
+        
         try:
-            response = requests.get("https://api.gdeltproject.org/api/v2/doc/doc", params=params, timeout=10)
+            response = session.get("https://api.gdeltproject.org/api/v2/doc/doc", params=params, timeout=15)
             response.raise_for_status()
             data = response.json()
         except Exception as e:
-            print(f"GDELT provider failed: {e}")
+            print(f"GDELT provider failed after retries: {e}")
             return []
             
         results = []

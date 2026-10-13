@@ -24,10 +24,13 @@ async def custom_exception_handler(request: Request, exc: Exception):
         )
         return JSONResponse(status_code=500, content=error.model_dump())
         
+    import traceback
+    traceback.print_exc()
+    
     # Generic error
     error = APIError(
         error_code="INTERNAL_PIPELINE_ERROR",
-        message="An unexpected error occurred in the DELPHI pipeline.",
+        message=f"An unexpected error occurred in the DELPHI pipeline: {str(exc)}",
         request_id=req_id,
         timestamp=datetime.now(timezone.utc).isoformat()
     )

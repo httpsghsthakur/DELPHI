@@ -100,7 +100,7 @@ export function Layout({ children }: { children: ReactNode }) {
         aria-modal={mobileOpen || undefined}
       >
         <Link to="/" className="brand" onClick={() => setMobileOpen(false)}>
-          <span className="brand-mark">
+          <span className="brand-mark" aria-hidden="true">
             D<span />
           </span>
           <span className="brand-text">

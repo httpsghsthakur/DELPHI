@@ -1,18 +1,6 @@
 {
-  "model_version": "v2.0",
-  "architecture": "MLP(12,32,16,1)",
-  "training_epochs": 20,
-  "best_val_loss": 0.30083367228507996,
-  "training_information_end_time": "20230104",
-  "dataset_version": "v2.0",
-  "val_metrics": {
-    "accuracy": 0.7413127413127413,
-    "precision": 0.8304157549234136,
-    "recall": 0.7544731610337972,
-    "f1": 0.790625,
-    "macro_f1": 0.7261205808080808,
-    "roc_auc": 0.8548665428354447,
-    "brier": 0.1513948128339923,
-    "ece": 0.09128766467236224
-  }
+  "model_version": "v1.0",
+  "training_information_end_time": "2026-09-27T06:25:02.758294Z",
+  "dataset_manifest": "gdelt_manifest.json",
+  "parameter_count": 961
 }

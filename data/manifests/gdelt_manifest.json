@@ -1,0 +1,13 @@
+{
+  "dataset_name": "GDELT_Ingest_Real",
+  "source": "GDELT",
+  "source_url": "http://data.gdeltproject.org/gdeltv2/20231101000000.export.CSV.zip",
+  "retrieval_timestamp": "2026-09-27T05:17:54.561791Z",
+  "record_count": 100,
+  "min_timestamp": "20221101",
+  "max_timestamp": "20231101",
+  "schema_version": "v1",
+  "checksum": "4e3e4ba6b291dfb8973b9241a3e4e7ed792637385110dd8a47340a6075bc7040",
+  "license/usage_notes": "Public Domain",
+  "processing_version": "1.0"
+}

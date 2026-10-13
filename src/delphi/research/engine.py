@@ -44,6 +44,7 @@ class LiveResearchEngine:
         all_search_results: List[SearchResult] = []
         providers_used = []
         
+        import time
         # 2. Search Execution (Fallback logic per query)
         for q in queries:
             query_success = False
@@ -55,6 +56,7 @@ class LiveResearchEngine:
                         providers_used.append(provider.__class__.__name__)
                     query_success = True
                     break # Stop fallback if we got results
+            time.sleep(1.5) # Prevent 429 Too Many Requests rate-limiting from public APIs
                     
         # 3. Deduplicate Search Results
         unique_results = Deduplicator.deduplicate_results(all_search_results)

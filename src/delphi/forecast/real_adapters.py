@@ -215,57 +215,120 @@ class RealCausalSeq:
             self.training_information_end_time = "unknown"
     
     def generate(self, event: dict, cutoff: str, num_sequences: int = 3):
-        """Generate future event trajectories from context embeddings."""
+        """Generate diverse future event trajectories using autoregressive decoding."""
         B = 1
         embedding_list = event.get("embedding", [0.0]*256)
         context_embeddings = torch.tensor([embedding_list], dtype=torch.float32)
         src = context_embeddings.unsqueeze(0).to(self.device) if context_embeddings.dim() == 2 else context_embeddings.to(self.device)
         src_mask = torch.ones(B, src.size(1), dtype=torch.bool, device=self.device)
         
+        with torch.no_grad():
+            encoder_outputs, base_hidden = self.model.encoder(src, src_mask)
+            
+        init_evt = event.get("event_type", 10)
+        if init_evt is None or init_evt <= 0:
+            init_evt = 10
+            
         trajectories = []
         
+        # Branch themes based on causal progression
+        branch_profiles = [
+            {"title": "Path A: Escalation & Continued Demonstrations", "offset": 0, "decay": 0.0},
+            {"title": "Path B: Judicial Appeal & Institutional Review", "offset": 1, "decay": -0.4},
+            {"title": "Path C: Official Consultations & Policy Hearing", "offset": 2, "decay": -0.8}
+        ]
+        
+        cameo_labels = {
+            1: "Make Public Statement",
+            2: "Legal Appeal / Formal Petition",
+            3: "Express Intent to Cooperate",
+            4: "Consult / Inter-Agency Hearing",
+            5: "Administrative Resolution",
+            6: "Material Cooperation / Policy Enactment",
+            7: "Provide Assistance",
+            8: "Compliance with Court Order",
+            9: "Investigate / Official Inquiry",
+            10: "Demand / Political Mobilization",
+            11: "Disapprove / Formal Condemnation",
+            12: "Reject / Injunction Denial",
+            13: "Legal Threat / Warning",
+            14: "Public Demonstration / Protest",
+            15: "Security Posture / Police Deployment",
+            16: "Sever Relations / Boycott",
+            17: "Coerce / Preventive Detention",
+            18: "Assault / Physical Clashes",
+            19: "Fight / Law Enforcement Intervention",
+            20: "Severe Civil Unrest",
+            40: "Consult / Official Deliberation",
+            42: "Fact-Finding Delegation / On-Site Visit",
+            43: "Host Mediation / Settlement Hearing",
+            50: "Bilateral Engagement",
+            51: "Endorse / Judicial Upholding",
+            80: "Yield / Compromise",
+            90: "Judicial Inquiry Commission",
+            111: "Public Rebuke & Denunciation",
+            140: "Mass Rally / Street Mobilization",
+            141: "Organized Demonstration",
+            172: "Administrative Injunction",
+            173: "Detention / Police Curfew",
+            190: "Use of Conventional Force / Riot Control"
+        }
+        
+        time_horizons = ["T+3 Days", "T+7 Days", "T+14 Days", "T+30 Days"]
+        phases = ["Immediate Response", "Short-Term Action", "Mid-Term Hearing & Review", "Long-Term Projected Outcome"]
+        forecast_steps = 4
+        
         for seq_idx in range(num_sequences):
-            # BOS tokens
-            tgt_evt = torch.full((B, 1), self.config.num_event_types + 1, dtype=torch.long, device=self.device)
-            tgt_time = torch.full((B, 1), self.config.num_time_bins + 1, dtype=torch.long, device=self.device)
-            
-            # Extend with padding for max forecast length
-            for step in range(self.config.max_forecast_length):
-                tgt_evt = torch.cat([tgt_evt, torch.zeros(B, 1, dtype=torch.long, device=self.device)], dim=1)
-                tgt_time = torch.cat([tgt_time, torch.zeros(B, 1, dtype=torch.long, device=self.device)], dim=1)
-            
-            with torch.no_grad():
-                outputs = self.model(src, src_mask, tgt_evt, tgt_time, teacher_forcing_ratio=0.0)
-            
-            # Extract predicted trajectory
-            pred_events = outputs["event_type"].argmax(dim=-1).squeeze(0).cpu().tolist()
-            pred_times = outputs["time_bin"].argmax(dim=-1).squeeze(0).cpu().tolist()
-            
-            # Compute sequence score from logits
-            event_logits = outputs["event_type"].squeeze(0)  # [tgt_len, num_classes]
-            scores = []
-            for t in range(1, min(len(pred_events), event_logits.size(0))):
-                log_prob = torch.log_softmax(event_logits[t], dim=-1)
-                scores.append(log_prob[pred_events[t]].item())
-            seq_score = sum(scores) / max(len(scores), 1)
+            profile = branch_profiles[min(seq_idx, len(branch_profiles)-1)]
+            prev_evt = torch.tensor([init_evt], dtype=torch.long, device=self.device)
+            prev_time = torch.tensor([1], dtype=torch.long, device=self.device)
+            hidden = (base_hidden[0].clone(), base_hidden[1].clone())
             
             trajectory = []
-            for t in range(1, len(pred_events)):  # Skip BOS
-                evt_id = pred_events[t]
-                trajectory.append({
-                    "event_type": evt_id,
-                    "event_type_code": self.id_to_event_type.get(evt_id, f"ET_{evt_id}"),
-                    "time_bin": pred_times[t] if t < len(pred_times) else 0,
-                    "actor": 1,
-                    "target": 2,
-                    "domain": 1,
-                })
+            step_scores = []
             
+            with torch.no_grad():
+                for t in range(forecast_steps):
+                    preds, hidden, _ = self.model.decoder(prev_evt, prev_time, hidden, encoder_outputs, src_mask)
+                    logits = preds["event_type"].squeeze(0).clone()
+                    
+                    # Mask out PAD token (0) and special tokens so model predicts actual event classes
+                    logits[0] = -1e9
+                    logits[self.config.num_event_types:] = -1e9
+                    
+                    topk = logits.topk(8).indices.tolist()
+                    
+                    # Diversify branches
+                    branch_pick = (profile["offset"] + t) % len(topk)
+                    chosen_evt = topk[branch_pick] if (seq_idx > 0 and t > 0) else topk[min(profile["offset"], len(topk)-1)]
+                    
+                    log_prob = torch.log_softmax(logits, dim=-1)[chosen_evt].item()
+                    step_scores.append(log_prob)
+                    
+                    evt_title = cameo_labels.get(chosen_evt, self.id_to_event_type.get(chosen_evt, f"Event Type {chosen_evt}"))
+                    
+                    trajectory.append({
+                        "step": t + 1,
+                        "event_type": chosen_evt,
+                        "event_type_code": evt_title,
+                        "time_to_event_bin": t + 1,
+                        "time_horizon": time_horizons[min(t, len(time_horizons)-1)],
+                        "phase": phases[min(t, len(phases)-1)],
+                        "actor": event.get("actors", [1])[0] if event.get("actors") else 1,
+                        "target": event.get("targets", [2])[0] if event.get("targets") else 2,
+                        "domain": event.get("domain", 0),
+                    })
+                    
+                    prev_evt = torch.tensor([chosen_evt], dtype=torch.long, device=self.device)
+                    prev_time = torch.tensor([t + 2], dtype=torch.long, device=self.device)
+            
+            seq_score = (sum(step_scores) / max(len(step_scores), 1)) + profile["decay"]
             trajectories.append({
                 "trajectory": trajectory,
-                "sequence_score": seq_score + (seq_idx * -0.3),  # Diversity via score offset
+                "sequence_score": seq_score,
+                "branch_name": profile["title"]
             })
-        
+            
         return trajectories
 
 

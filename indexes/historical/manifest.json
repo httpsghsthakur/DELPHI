@@ -1,0 +1,10 @@
+{
+  "index_name": "GDELT_Historical_Index",
+  "ntotal": 10000,
+  "dimension": 256,
+  "date_range": [
+    "2014-01-03T00:00:00Z",
+    "2024-01-02T00:00:00Z"
+  ],
+  "created_at": "2026-09-27T06:27:56.198596Z"
+}

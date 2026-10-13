@@ -62,8 +62,8 @@ def test_temporal_validation(client):
 def test_analysis_persistence_and_idempotency(client):
     req_data = {
         "text": "The government announced a new trade policy.",
-        "publication_timestamp": "2026-08-30T00:00Z",
-        "prediction_information_cutoff": "2026-09-01T00:00Z",
+        "publication_timestamp": "2026-09-28T00:00Z",
+        "prediction_information_cutoff": "2026-09-30T00:00Z",
         "domain": "geopolitics",
         "forecast_horizon": 30
     }

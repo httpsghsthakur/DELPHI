@@ -14,7 +14,8 @@ class ScenarioBuilder:
         """
         struct_repr = ""
         for step in trajectory:
-            struct_repr += f"{step.get('event_type')}-{step.get('time_bin')}-{step.get('actor')}-{step.get('target')}-{step.get('domain')}|"
+            t_bin = step.get("time_bin", step.get("time_to_event_bin", 0))
+            struct_repr += f"{step.get('event_type')}-{t_bin}-{step.get('actor')}-{step.get('target')}-{step.get('domain')}|"
         return hashlib.md5(struct_repr.encode()).hexdigest()
 
     def build_scenarios(self, generated_trajectories: List[Dict[str, Any]]) -> List[ScenarioCandidate]:
@@ -27,13 +28,14 @@ class ScenarioBuilder:
         for idx, traj_bundle in enumerate(generated_trajectories):
             traj = traj_bundle.get("trajectory", [])
             score = traj_bundle.get("sequence_score", 0.0)
+            branch_title = traj_bundle.get("branch_name") or (f"Scenario {idx+1}: {traj[0].get('event_type_code', 'Forecast')} Trajectory" if traj else f"Scenario {idx+1}")
             
             traj_hash = self._hash_trajectory(traj)
             
             if traj_hash not in unique_scenarios:
                 unique_scenarios[traj_hash] = ScenarioCandidate(
                     scenario_id=f"SCENARIO_{idx+1}",
-                    title=f"Scenario Type {traj[0].get('event_type', 'Unknown')} Path",
+                    title=branch_title,
                     trajectory=traj,
                     supporting_evidence=[],
                     contradictory_evidence=[],

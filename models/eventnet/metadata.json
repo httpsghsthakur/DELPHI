@@ -1,19 +1,6 @@
 {
-  "model_version": "v2.0",
-  "architecture": "BiLSTM+SelfAttention",
-  "num_event_types": 20,
-  "num_token_labels": 3,
-  "training_epochs": 10,
-  "final_loss": 0.0005270377345990296,
-  "training_information_end_time": "20230104",
-  "dataset_version": "v2.0",
-  "val_metrics": {
-    "span_f1": 1.0,
-    "event_type_macro_f1": 0.9768229052125387,
-    "event_type_accuracy": 0.994
-  },
-  "parameter_count": {
-    "total": 664343,
-    "trainable": 664343
-  }
+  "model_version": "v1.0",
+  "training_information_end_time": "2026-09-27T06:24:43.791692Z",
+  "dataset_manifest": "gdelt_manifest.json",
+  "parameter_count": 724995
 }

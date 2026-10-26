@@ -8,6 +8,8 @@ from delphi.api.routes.forecasts import forecasts_router
 from delphi.api.routes.historical import historical_router
 from delphi.api.routes.backtests import backtests_router
 from delphi.api.routes.research import research_router
+from delphi.api.routes.events import events_router
+from delphi.api.routes.history import history_router
 from delphi.api.middleware.request_id import RequestIDMiddleware
 from delphi.api.middleware.error_handler import custom_exception_handler
 from delphi.api.schemas.errors import TemporalLeakageError, CheckpointIncompatibleError
@@ -65,6 +67,8 @@ def create_app() -> FastAPI:
     app.include_router(analysis_router, prefix="/analysis", tags=["analysis"])
     app.include_router(forecasts_router, prefix="/forecasts", tags=["forecasts"])
     app.include_router(historical_router, prefix="/historical", tags=["historical"])
+    app.include_router(history_router, prefix="/historical", tags=["historical"])
+    app.include_router(events_router, prefix="/events", tags=["events"])
     app.include_router(backtests_router, prefix="/backtests", tags=["backtests"])
     app.include_router(research_router, prefix="/research", tags=["research"])
 

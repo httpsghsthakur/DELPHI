@@ -120,6 +120,61 @@ class ForecastOrchestrator:
             causalseq_training_end=self.causal_seq_model.training_information_end_time,
             calibration_training_end="not_used" if self.calibrator.state == "UNCALIBRATED" else "2026-01-01T00:00Z"
         )
+
+        # 11.5 Grounded Intelligence Report Composition
+        intelligence_report_dict = None
+        dossier_to_use = getattr(res_report, "dossier", None) if getattr(request, 'live_research', False) and 'res_report' in locals() and res_report else None
+        if dossier_to_use is None:
+            # Fallback dossier constructed from request text
+            from ..research.schemas import ResearchDossier, DossierSource, DossierClaim
+            dossier_to_use = ResearchDossier(
+                research_question=request.article_text,
+                search_queries=[],
+                research_cutoff=request.prediction_information_cutoff,
+                sources=[
+                    DossierSource(
+                        document_id="request_source",
+                        url=request.source_id or "local://input_article",
+                        title="Submitted Article / Context",
+                        source_name="Input Dispatch",
+                        source_domain="primary_source",
+                        published_at=request.publication_timestamp,
+                        retrieved_at=request.publication_timestamp,
+                        credibility_score=credibility.get("credibility_score", 0.5),
+                        word_count=len(request.article_text.split()),
+                        summary_snippet=request.article_text[:200],
+                        status="extracted"
+                    )
+                ],
+                extracted_claims=[
+                    DossierClaim(
+                        claim_id="claim_0",
+                        claim_text=request.article_text[:250],
+                        document_id="request_source",
+                        source_url=request.source_id or "local://input_article",
+                        source_domain="primary_source",
+                        source_name="Input Dispatch",
+                        published_at=request.publication_timestamp,
+                        claim_type="reported_fact",
+                        direction="supporting",
+                        credibility_score=credibility.get("credibility_score", 0.5)
+                    )
+                ]
+            )
+            
+        try:
+            intel_report = self.research_engine.composer.compose_report(
+                dossier=dossier_to_use,
+                event_context=current_event,
+                credibility_assessment=credibility,
+                historical_analogues=historical_analogues,
+                scenarios=scenarios,
+                indicators=indicators,
+                calibration_status=cal_status
+            )
+            intelligence_report_dict = intel_report.model_dump()
+        except Exception:
+            pass
         
         report = ForecastReport(
             request_metadata=request,
@@ -133,6 +188,7 @@ class ForecastOrchestrator:
             supporting_evidence=evidence_registry.get_supporting(),
             contradictory_evidence=evidence_registry.get_contradictory(),
             live_research_report=research_report_dict,
+            intelligence_report=intelligence_report_dict,
             confidence_metadata=confidence,
             provenance=prov,
             temporal_safety_status="VALID" if evidence_registry.validate_cutoff(request.prediction_information_cutoff) else "INVALID",

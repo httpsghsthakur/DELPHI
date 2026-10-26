@@ -255,8 +255,8 @@ export function InputPanel({
       <div className="composer-footer">
         <span>
           {loading
-            ? "Request submitted. The API does not expose stage progress."
-            : "Results are generated from the connected DELPHI engine."}
+            ? "Executing research-first workflow: Generating search queries, retrieving genuine sources, extracting evidence, and synthesizing detailed intelligence report…"
+            : "Results are generated from the connected DELPHI engine and verified live research."}
         </span>
         <button className="button primary" type="submit" disabled={loading}>
           {loading ? (

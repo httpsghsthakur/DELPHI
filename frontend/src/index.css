@@ -2107,3 +2107,453 @@ tbody tr:hover {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   DELPHI DEEP INTELLIGENCE REPORT & BRIEFING WORKSPACE
+   ========================================================================== */
+
+.briefing-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.briefing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, #111a28 0%, #0d1420 100%);
+  border: 1px solid #27384e;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.briefing-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.briefing-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--subtle);
+  font-family: Consolas, "IBM Plex Mono", monospace;
+}
+
+.briefing-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #e4edf8;
+  letter-spacing: -0.4px;
+  margin: 0 0 8px;
+  line-height: 1.35;
+}
+
+.briefing-subtitle {
+  font-size: 12px;
+  color: #8da4be;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.briefing-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Research Dossier Drawer */
+.dossier-tray {
+  background: #0f1826;
+  border: 1px solid #23344a;
+  border-radius: 8px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.dossier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #203044;
+  padding-bottom: 12px;
+}
+
+.dossier-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #c0d3e8;
+  margin: 0;
+}
+
+.dossier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.dossier-card {
+  background: #142032;
+  border: 1px solid #283a52;
+  border-radius: 6px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dossier-stat-num {
+  font-size: 26px;
+  font-weight: 600;
+  color: #64b5f6;
+  font-family: Consolas, "IBM Plex Mono", monospace;
+}
+
+.dossier-stat-label {
+  font-size: 11px;
+  color: var(--subtle);
+  margin-top: 4px;
+}
+
+.dossier-queries h4,
+.dossier-providers h4,
+.dossier-conflicts h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--subtle);
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.query-tag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.query-tag {
+  background: #142134;
+  border: 1px solid #25384f;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-family: Consolas, monospace;
+  color: #9cb5cf;
+}
+
+.provider-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.provider-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #142236;
+  border: 1px solid #243952;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+.prov-name {
+  color: #a4bed9;
+}
+
+.prov-status.good {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.prov-status.warn {
+  color: #ffb74d;
+}
+
+.dossier-conflicts {
+  background: #1e1b15;
+  border: 1px solid #4a3e23;
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.conflict-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 11px;
+  color: #dfcdb2;
+  line-height: 1.8;
+}
+
+/* Briefing Layout */
+.briefing-layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.briefing-toc {
+  position: sticky;
+  top: 80px;
+  background: #0f1826;
+  border: 1px solid #23344a;
+  border-radius: 8px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toc-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--subtle);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.briefing-toc nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toc-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #8da4be;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.toc-link:hover {
+  background: #17253a;
+  color: #c7dcef;
+}
+
+.toc-link.active {
+  background: #1c2e47;
+  color: #64b5f6;
+  font-weight: 500;
+}
+
+.toc-num {
+  font-family: Consolas, monospace;
+  font-size: 10px;
+  color: var(--subtle);
+}
+
+.toc-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Briefing Content */
+.briefing-content {
+  background: #0e1724;
+  border: 1px solid #24354c;
+  border-radius: 8px;
+  padding: 36px 42px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.briefing-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 1px solid #1c2b3e;
+  padding-bottom: 32px;
+}
+
+.briefing-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.section-eyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #4a90e2;
+  font-family: Consolas, monospace;
+  font-weight: 600;
+}
+
+.section-heading {
+  font-size: 20px;
+  font-weight: 600;
+  color: #e2edf8;
+  margin: 0 0 6px;
+  letter-spacing: -0.3px;
+}
+
+.section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.briefing-paragraph {
+  font-size: 13.5px;
+  line-height: 1.82;
+  color: #b7cce2;
+  margin: 0;
+  text-align: justify;
+}
+
+.briefing-paragraph.muted {
+  color: #7994b0;
+  font-size: 12px;
+}
+
+/* Inline Citation Chips */
+.citation-chip {
+  display: inline-block;
+  padding: 1px 5px;
+  margin: 0 3px;
+  background: #172c47;
+  border: 1px solid #2d517c;
+  border-radius: 4px;
+  color: #64b5f6;
+  font-family: Consolas, "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-decoration: none;
+  vertical-align: baseline;
+  transition: all 0.15s ease;
+}
+
+.citation-chip:hover {
+  background: #204169;
+  border-color: #42a5f5;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Source citations listing */
+.source-citation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.source-citation-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #121d2d;
+  border: 1px solid #24364e;
+  border-radius: 6px;
+}
+
+.source-citation-badge {
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64b5f6;
+  padding-top: 2px;
+}
+
+.source-citation-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.source-citation-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #d1e2f3;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.source-citation-title:hover {
+  color: #64b5f6;
+  text-decoration: underline;
+}
+
+.source-citation-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #7994b0;
+}
+
+.source-domain {
+  color: #4a90e2;
+  font-family: Consolas, monospace;
+}
+
+.source-cred {
+  color: #66bb6a;
+}
+
+.briefing-footer-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: #101926;
+  border: 1px solid #203147;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #7d96b0;
+  margin-top: 10px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 980px) {
+  .briefing-layout {
+    grid-template-columns: 1fr;
+  }
+  .briefing-toc {
+    display: none;
+  }
+  .briefing-content {
+    padding: 24px 20px;
+  }
+  .briefing-header {
+    flex-direction: column;
+  }
+}
+

@@ -96,6 +96,7 @@ class ForecastReport(BaseModel):
     supporting_evidence: List[EvidenceItem]
     contradictory_evidence: List[EvidenceItem]
     live_research_report: Optional[Dict[str, Any]] = None
+    intelligence_report: Optional[Dict[str, Any]] = None
     confidence_metadata: ConfidenceAssessment
     provenance: Provenance
     temporal_safety_status: str

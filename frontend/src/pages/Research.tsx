@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAnalysisStore } from "../state/analysisStore";
 import { InputPanel } from "../components/input/InputPanel";
 import { ResearchPanel } from "../components/research/ResearchPanel";
+import { IntelligenceReportView } from "../components/report/IntelligenceReportView";
 import { PageHeader, Panel } from "../components/ui/Primitives";
 import type { ResearchReport } from "../api/types";
 export function Research() {
@@ -48,7 +49,14 @@ export function Research() {
           </select>
         </div>
       )}
-      <Panel title="Research report">
+      {research?.intelligence_report && (
+        <IntelligenceReportView
+          report={research.intelligence_report}
+          dossier={research.dossier}
+          cutoff={research.dossier?.research_cutoff}
+        />
+      )}
+      <Panel title="Raw research audit & evidence graph">
         <ResearchPanel research={research} />
       </Panel>
     </>

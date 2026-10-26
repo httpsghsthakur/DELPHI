@@ -21,6 +21,7 @@ import { ScenarioDistribution } from "../charts/ScenarioDistribution";
 import { IndicatorsPanel } from "../components/indicators/IndicatorsPanel";
 import { ProvenancePanel } from "../components/provenance/ProvenancePanel";
 import { CausalGraph } from "../components/report/CausalGraph";
+import { IntelligenceReportView } from "../components/report/IntelligenceReportView";
 export function NewAnalysis() {
   const navigate = useNavigate();
   return (
@@ -104,6 +105,21 @@ export function AnalysisResults() {
         />
       </>
     );
+
+  const tabList = [
+    "Intelligence Briefing",
+    "Summary",
+    "Current Event",
+    "Credibility",
+    "Live Research",
+    "Evidence",
+    "Historical Analogues",
+    "Causal Graph",
+    "Scenarios",
+    "Indicators",
+    "Provenance",
+  ];
+
   return (
     <>
       <PageHeader
@@ -128,46 +144,23 @@ export function AnalysisResults() {
         </span>
       </div>
       <div className="tabs" role="tablist" aria-label="Report sections">
-        {[
-          "Summary",
-          "Current Event",
-          "Credibility",
-          "Live Research",
-          "Evidence",
-          "Historical Analogues",
-          "Causal Graph",
-          "Scenarios",
-          "Indicators",
-          "Provenance",
-        ].map((t) => (
+        {tabList.map((t) => (
           <button
             role="tab"
             tabIndex={tab === t ? 0 : -1}
             aria-selected={tab === t}
             onKeyDown={(e) => {
-              const names = [
-                "Summary",
-                "Current Event",
-                "Credibility",
-                "Live Research",
-                "Evidence",
-                "Historical Analogues",
-                "Causal Graph",
-                "Scenarios",
-                "Indicators",
-                "Provenance",
-              ];
-              let index = names.indexOf(t);
-              if (e.key === "ArrowRight") index = (index + 1) % names.length;
+              let index = tabList.indexOf(t);
+              if (e.key === "ArrowRight") index = (index + 1) % tabList.length;
               else if (e.key === "ArrowLeft")
-                index = (index + names.length - 1) % names.length;
+                index = (index + tabList.length - 1) % tabList.length;
               else if (e.key === "Home") index = 0;
-              else if (e.key === "End") index = names.length - 1;
+              else if (e.key === "End") index = tabList.length - 1;
               else return;
               e.preventDefault();
-              setTab(names[index]);
+              setTab(tabList[index]);
               document
-                .getElementById(`tab-${names[index].replace(/ /g, "-")}`)
+                .getElementById(`tab-${tabList[index].replace(/ /g, "-")}`)
                 ?.focus();
             }}
             aria-controls="report-section"
@@ -185,6 +178,14 @@ export function AnalysisResults() {
         role="tabpanel"
         aria-labelledby={`tab-${tab.replace(/ /g, "-")}`}
       >
+        {tab === "Intelligence Briefing" && (
+          <IntelligenceReportView
+            report={report.intelligence_report || report.live_research_report?.intelligence_report}
+            dossier={report.live_research_report?.dossier}
+            cutoff={report.provenance.prediction_cutoff}
+            calibrationStatus={report.calibration_status}
+          />
+        )}
         {tab === "Summary" && (
           <>
             <div className="two-column">

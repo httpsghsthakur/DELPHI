@@ -47,6 +47,7 @@ class APIForecastReport(BaseModel):
     indicators: List[str]
     evidence: List[Dict[str, Any]]
     live_research_report: Optional[Dict[str, Any]] = None
+    intelligence_report: Optional[Dict[str, Any]] = None
     calibration_status: str
     provenance: APIProvenance
     limitations: List[str]

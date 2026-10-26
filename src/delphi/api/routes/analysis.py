@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, Header
+from fastapi import APIRouter, Depends, Request, Header, HTTPException
 from sqlalchemy.orm import Session
 from delphi.api.schemas.requests import AnalysisRequest
 from delphi.api.schemas.responses import APIForecastReport, APIScenario, APIProvenance
@@ -85,6 +85,7 @@ def analyze(
             indicators=[i.indicator_id for i in report.indicators_to_watch],
             evidence=[e if isinstance(e, dict) else e.model_dump() for e in report.supporting_evidence + report.contradictory_evidence],
             live_research_report=report.live_research_report,
+            intelligence_report=report.intelligence_report,
             calibration_status=report.confidence_metadata.calibration_status,
             provenance=prov,
             limitations=report.limitations
@@ -145,3 +146,60 @@ def analyze(
     except Exception as e:
         db.rollback()
         raise e
+
+@analysis_router.get("", response_model=list[dict])
+def list_analyses(
+    limit: int = 50,
+    db: Session = Depends(get_db)
+):
+    """
+    List historical analysis runs with execution status and summary metadata.
+    """
+    runs = db.query(AnalysisRun).order_by(AnalysisRun.id.desc()).limit(limit).all()
+    results = []
+    for r in runs:
+        fc = db.query(ForecastRecord).filter(ForecastRecord.analysis_run_id == r.id).first()
+        topic = "Unknown analysis"
+        scenarios_count = 0
+        if fc and fc.forecast_payload:
+            curr_ev = fc.forecast_payload.get("current_event") or {}
+            topic = curr_ev.get("source_text", "")[:80] or curr_ev.get("event_type_code", "Intelligence Analysis")
+            scenarios_count = len(fc.forecast_payload.get("scenarios", []))
+
+        results.append({
+            "id": r.id,
+            "request_id": r.request_id,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "publication_timestamp": r.publication_timestamp,
+            "prediction_cutoff": r.prediction_cutoff,
+            "domain": r.domain,
+            "status": r.status,
+            "temporal_status": r.temporal_status,
+            "topic": topic,
+            "scenarios_count": scenarios_count
+        })
+    return results
+
+@analysis_router.get("/{run_id}", response_model=APIForecastReport)
+def get_analysis_by_id(
+    run_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieve complete persisted forecast report by ID or request_id.
+    """
+    # 1. Search by integer ID
+    record = None
+    if run_id.isdigit():
+        record = db.query(ForecastRecord).filter(ForecastRecord.analysis_run_id == int(run_id)).first()
+
+    # 2. Search by request_id
+    if not record:
+        run = db.query(AnalysisRun).filter(AnalysisRun.request_id == run_id).first()
+        if run:
+            record = db.query(ForecastRecord).filter(ForecastRecord.analysis_run_id == run.id).first()
+
+    if not record or not record.forecast_payload:
+        raise HTTPException(status_code=404, detail=f"Analysis report '{run_id}' not found")
+
+    return APIForecastReport(**record.forecast_payload)

@@ -69,35 +69,35 @@ Governed strictly by [`AGENTS.md`](AGENTS.md):
 
 ```mermaid
 flowchart TD
-    subgraph Data & Tokenization [Phase 1: Ingestion & Normalization]
-        Raw[Raw Global News / GDELT / Live Feeds] --> L1[Layer 1: Ingestion & Deduplication]
-        L1 --> L2[Layer 2: Deterministic Custom Tokenizer]
+    subgraph Phase1["Phase 1: Ingestion & Normalization"]
+        Raw["Raw Global News / GDELT / Live Feeds"] --> L1["Layer 1: Ingestion & Deduplication"]
+        L1 --> L2["Layer 2: Deterministic Custom Tokenizer"]
     end
 
-    subgraph Neural Representation [Phase 2: Custom Models]
-        L2 -->|Token IDs & Char Tensors| L3[Layer 3: EventEmbed<br/>Word2Vec + Char-CNN (281k params)]
-        L3 -->|256d Embeddings| L4[Layer 4: EventNet<br/>BiLSTM + Multi-Head Attention (725k params)]
+    subgraph Phase2["Phase 2: Custom Models"]
+        L2 -->|Token IDs & Char Tensors| L3["Layer 3: EventEmbed<br/>Word2Vec + Char-CNN (281k params)"]
+        L3 -->|256d Embeddings| L4["Layer 4: EventNet<br/>BiLSTM + Multi-Head Attention (725k params)"]
     end
 
-    subgraph Memory & Verification [Phase 3: Precedents & Trust]
-        L3 -->|256d Vectors| L5[Layer 5: Historical Intelligence<br/>FAISS Search + Parquet Filter]
-        Raw -->|12 Metadata Features| L6[Layer 6: CredNet<br/>Source Credibility MLP (961 params)]
+    subgraph Phase3["Phase 3: Precedents & Trust"]
+        L3 -->|256d Vectors| L5["Layer 5: Historical Intelligence<br/>FAISS Search + Parquet Filter"]
+        Raw -->|12 Metadata Features| L6["Layer 6: CredNet<br/>Source Credibility MLP (961 params)"]
     end
 
-    subgraph Causal Reasoning [Phase 4: Trajectory Projection]
-        L4 & L5 -->|Structured Event Chains| L7[Layer 7: CausalSeq<br/>Seq2Seq LSTM + Bahdanau Attention (2.93M params)]
+    subgraph Phase4["Phase 4: Trajectory Projection"]
+        L4 & L5 -->|Structured Event Chains| L7["Layer 7: CausalSeq<br/>Seq2Seq LSTM + Bahdanau Attention (2.93M params)"]
     end
 
-    subgraph Synthesis & Safety [Phase 5: Orchestration & Calibration]
-        L4 & L5 & L6 & L7 --> L8[Layer 8: Forecast Orchestrator<br/>Scenario Clustering & Synthesis]
-        L8 --> L9{Layer 9: Strict Temporal<br/>Leakage Guard & Calibration}
+    subgraph Phase5["Phase 5: Orchestration & Calibration"]
+        L4 & L5 & L6 & L7 --> L8["Layer 8: Forecast Orchestrator<br/>Scenario Clustering & Synthesis"]
+        L8 --> L9{"Layer 9: Strict Temporal<br/>Leakage Guard & Calibration"}
     end
 
-    subgraph User Delivery [Phase 6: Full Stack Interfaces]
-        L9 -->|Verified & Calibrated Payload| L10[Layer 10: FastAPI Backend Engine]
-        L10 --> L11[Layer 11: React 18 + D3.js Visualization UI]
-        L10 --> L12[Layer 12: Walk-Forward Backtester]
-        L10 --> L13[Layer 13: Live Research Dossier Engine]
+    subgraph Phase6["Phase 6: Full Stack Interfaces"]
+        L9 -->|Verified & Calibrated Payload| L10["Layer 10: FastAPI Backend Engine"]
+        L10 --> L11["Layer 11: React 18 + D3.js Visualization UI"]
+        L10 --> L12["Layer 12: Walk-Forward Backtester"]
+        L10 --> L13["Layer 13: Live Research Dossier Engine"]
     end
 ```
 

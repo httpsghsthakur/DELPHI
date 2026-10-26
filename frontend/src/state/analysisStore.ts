@@ -6,6 +6,7 @@ import type {
   HealthResponse,
   ModelStatus,
   ResearchReport,
+  PastAnalysisSummary,
 } from "../api/types";
 export interface SessionAnalysis {
   report: ForecastReport;
@@ -16,6 +17,7 @@ export interface SessionAnalysis {
 interface AnalysisState {
   report: ForecastReport | null;
   history: SessionAnalysis[];
+  persistedAnalyses: PastAnalysisSummary[];
   researchHistory: ResearchReport[];
   loading: boolean;
   error: string | null;
@@ -28,6 +30,8 @@ interface AnalysisState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   selectReport: (entry: SessionAnalysis) => void;
+  loadAnalysisById: (id: string | number) => Promise<void>;
+  fetchPastAnalyses: () => Promise<void>;
   addResearch: (report: ResearchReport) => void;
   refreshSystem: () => Promise<void>;
   reset: () => void;
@@ -37,6 +41,7 @@ const message = (e: unknown) =>
 export const useAnalysisStore = create<AnalysisState>((set, get) => ({
   report: null,
   history: [],
+  persistedAnalyses: [],
   researchHistory: [],
   loading: false,
   error: null,
@@ -61,6 +66,23 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
       ],
     })),
   selectReport: (entry) => set({ report: entry.report }),
+  loadAnalysisById: async (id: string | number) => {
+    set({ loading: true, error: null });
+    try {
+      const report = await apiClient.getAnalysis(id);
+      set({ report, loading: false });
+    } catch (err) {
+      set({ error: message(err), loading: false });
+    }
+  },
+  fetchPastAnalyses: async () => {
+    try {
+      const past = await apiClient.listAnalyses(50);
+      set({ persistedAnalyses: past });
+    } catch {
+      // Ignore background fetch error
+    }
+  },
   addResearch: (report) =>
     set((s) => ({ researchHistory: [report, ...s.researchHistory] })),
   setLoading: (loading) =>
@@ -73,6 +95,7 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
       apiClient.getHealth(),
       apiClient.getModels(),
     ]);
+    void get().fetchPastAnalyses();
     set({
       checkingHealth: false,
       systemStatus: health.status === "fulfilled" ? health.value : null,

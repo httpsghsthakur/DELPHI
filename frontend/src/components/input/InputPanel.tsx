@@ -101,6 +101,42 @@ export function InputPanel({
         <p className="field-helper" id="event-help">
           Include the actors, actions, and context you want to investigate.
         </p>
+        <div className="quick-presets">
+          <span className="preset-label">Quick Scenarios:</span>
+          <button
+            type="button"
+            className="preset-chip"
+            onClick={() => {
+              setText("A major country announces new restrictions on advanced semiconductor exports and lithography equipment");
+              setDomains(["technology", "economy"]);
+              setLiveResearch(true);
+            }}
+          >
+            ⚡ Semiconductor Restrictions
+          </button>
+          <button
+            type="button"
+            className="preset-chip"
+            onClick={() => {
+              setText("A central bank unexpectedly raises its benchmark interest rate by 50 basis points to counter persistent inflation");
+              setDomains(["economy", "monetary"]);
+              setLiveResearch(true);
+            }}
+          >
+            🏛️ 50bps Rate Hike
+          </button>
+          <button
+            type="button"
+            className="preset-chip"
+            onClick={() => {
+              setText("Commercial shipping vessels report heightened navigational disruptions and maritime security warnings in the southern Red Sea");
+              setDomains(["geopolitics", "trade"]);
+              setLiveResearch(true);
+            }}
+          >
+            🚢 Maritime Disruption
+          </button>
+        </div>
         <textarea
           id="event-text"
           placeholder="Paste article text or describe an event to begin…"

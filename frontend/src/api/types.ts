@@ -218,3 +218,16 @@ export interface CausalGraph {
   nodes: GraphNode[];
   edges: GraphEdge[];
 }
+
+export interface PastAnalysisSummary {
+  id: number;
+  request_id: string;
+  created_at: string | null;
+  publication_timestamp: string;
+  prediction_cutoff: string;
+  domain: string;
+  status: string;
+  temporal_status: string;
+  topic: string;
+  scenarios_count: number;
+}

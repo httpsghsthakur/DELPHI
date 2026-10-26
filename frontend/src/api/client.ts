@@ -118,5 +118,15 @@ export class APIClient {
       `/backtests/${encodeURIComponent(runId)}`,
     );
   }
+  listAnalyses(limit = 50) {
+    return this.request<import("./types").PastAnalysisSummary[]>(
+      `/analysis?limit=${limit}`,
+    );
+  }
+  getAnalysis(runId: string | number) {
+    return this.request<ForecastReport>(
+      `/analysis/${encodeURIComponent(String(runId))}`,
+    );
+  }
 }
 export const apiClient = new APIClient();

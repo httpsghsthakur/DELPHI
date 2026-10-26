@@ -490,7 +490,26 @@ npm run build
 ```
 *Expected*: Executes Semiconductor Export Restrictions and Central Bank Rate Hike investigations, producing ~3,000-word paragraph-based briefings.
 
+### 7. Cloud Deployment on Render
+DELPHI is configured for zero-configuration deployment on Render via native blueprint:
+- **Configuration File**: [`render.yaml`](file:///c:/Users/gt643/Downloads/DELPHI/render.yaml)
+- **Python Version Pin**: [`.python-version`](file:///c:/Users/gt643/Downloads/DELPHI/.python-version) (`3.12.8`)
+- **Build Command**:
+  ```bash
+  pip install --upgrade pip && pip install -r requirements.txt && pip install -e .
+  ```
+- **Start Command**:
+  ```bash
+  uvicorn delphi.api.app:app --host 0.0.0.0 --port $PORT
+  ```
+- **Required Environment Variables**:
+  - `PYTHON_VERSION`: `3.12.8`
+  - `DELPHI_EXECUTION_MODE`: `REAL`
+  - `STRICT_TEMPORAL_MODE`: `true`
+  - `DATABASE_URL`: `sqlite:///delphi.db`
+  - `CORS_ORIGINS`: `*`
+
 ---
 
-**Git Commit**: [`c4afaf4456fd73b0004d570ba5746c5654f3ac86`](file:///c:/Users/gt643/Downloads/DELPHI)  
-**Branch**: `feature/deep-research-report-repair`
+**Git Commit**: [`25c187889e4726bfcf9fae0e9729ff70339d39c5`](file:///c:/Users/gt643/Downloads/DELPHI)  
+**Branch**: `main`

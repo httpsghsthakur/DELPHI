@@ -2,6 +2,10 @@ torch
 fastapi
 uvicorn
 pydantic
+pydantic-settings
+requests
+scikit-learn
+python-multipart
 numpy
 polars
 duckdb
